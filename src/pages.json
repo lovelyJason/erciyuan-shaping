@@ -7,12 +7,14 @@
 				"app-plus": {
 					"bounce": "vertical",
 					"titleNView": {
-						"buttons": [{
-							"text": "\ue534",
-							"fontSrc": "/static/uni.ttf",
-							"fontSize": "22px",
-							"color": "#FFFFFF"
-						}]
+						"buttons": [
+							{
+								"text": "\ue534",
+								"fontSrc": "/static/uni.ttf",
+								"fontSize": "22px",
+								"color": "#FFFFFF"
+							}
+						]
 					}
 				},
 				"usingComponents": {
@@ -27,15 +29,39 @@
 				"navigationBarTitleText": "我的",
 				"app-plus": {
 					"titleNView": {
-						"buttons": [{
-							"text": "\ue534",
-							"fontSrc": "/static/uni.ttf",
-							"fontSize": "22px",
-							"color": "#FFFFFF"
-						}]
+						"buttons": [
+							{
+								"text": "\ue534",
+								"fontSrc": "/static/uni.ttf",
+								"fontSize": "22px",
+								"color": "#FFFFFF"
+							}
+						]
 					}
 				}
 			}
 		}
-	]
+	],
+	"tabBar": {
+		"color": "#7A7E83",
+		"selectedColor": "#3cc51f",
+		"borderStyle": "black",
+		"backgroundColor": "#ffffff",
+		"height": "50px",
+		"fontSize": "12px",
+		"iconWidth": "24px",
+		"spacing": "3px",
+		"list": [
+			{
+				"pagePath": "pages/home/home",
+				"text": "首页",
+				"iconPath": "static/image/home.png",
+				"selectedIconPath": "static/image/home_hl.png"
+			},
+			{
+				"pagePath": "pages/about/about",
+				"text": "我的"
+			}
+		]
+	}
 }
