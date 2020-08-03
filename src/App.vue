@@ -46,7 +46,7 @@
     /* #ifndef APP-PLUS-NVUE */
     /* uni.css - 通用组件、模板样式库，可以当作一套ui库应用 */
     @import './common/uni.css';
-
+    @import '/wxcomponents/vant/dist/common/index.wxss';
     /* 以下样式用于 hello uni-app 演示所需 */
     page {
         background-color: #F4F5F6;
