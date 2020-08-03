@@ -47,8 +47,8 @@
 		"selectedColor": "#3cc51f",
 		"borderStyle": "black",
 		"backgroundColor": "#ffffff",
-		"height": "50px",
-		"fontSize": "12px",
+		"height": "40px",
+		"fontSize": "16px",
 		"iconWidth": "24px",
 		"spacing": "3px",
 		"list": [
@@ -60,7 +60,9 @@
 			},
 			{
 				"pagePath": "pages/about/about",
-				"text": "我的"
+				"text": "我的",
+				"iconPath": "static/image/me.png",
+				"selectedIconPath": "static/image/me_hl.png"
 			}
 		]
 	}

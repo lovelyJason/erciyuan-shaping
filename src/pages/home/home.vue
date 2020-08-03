@@ -1,5 +1,7 @@
 <template>
-  <view>
+  <view class="page-wrapper">
+    <view>二次元变身</view>
+    <hr />
     <swiper
       class="swiper"
       circular
@@ -19,12 +21,15 @@
         </view>
       </swiper-item>
       <swiper-item>
-        <view class="swiper-item uni-bg-blue">
+        <view class="swiper-item">
           <image mode="aspectFill" src="https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/556945514.png"></image>
         </view>
       </swiper-item>
     </swiper>
-    <view class="flex-center upload-wrapper">
+    <view class="grid">
+      <view class="erciyuan"></view>
+    </view>
+    <!-- <view class="flex-center upload-wrapper">
       <van-uploader
         :file-list="fileList"
         @after-read="afterRead"
@@ -35,7 +40,7 @@
     </view>
     <view class="flex-center">
       <van-button :disabled="filename === ''" @click="beautifyImg" type="primary">变脸(由黄某人开发)</van-button>
-    </view>
+    </view> -->
   </view>
 </template>
 
@@ -135,21 +140,23 @@ export default {
 </script>
 
 <style lang="less">
-.uni-margin-wrap {
-  width: 690rpx;
-  margin: 0 30rpx;
+@swiper_height: 380rpx;
+.page-wrapper {
+  padding: 10px 20px;
+  background-color: #fff;
 }
 .swiper {
-  height: 480rpx;
+  height: @swiper_height;
 }
 .swiper-item {
   display: block;
-  height: 480rpx;
-  line-height: 480rpx;
+  height: @swiper_height;
+  line-height: @swiper_height;
   text-align: center;
   image {
     width: 100%;
     height: 100%;
+    border-radius: 20px;
   }
 }
 .swiper-list {
@@ -183,6 +190,19 @@ export default {
 .van-uploader {
   .van-uploader__upload {
     margin: 0;
+  }
+}
+.grid {
+  // height: calc(~"100vh - 480rpx - 8px");
+  height: calc(100vh - var(--window-top) - @swiper_height - 20px);
+  background-color: #eee;
+  margin-top: 8px;
+  padding: 10px 20px 10px 20px;
+  .erciyuan {
+    width: calc(~"50% - 10px");
+    height: calc(~"50% - 10px");
+    background-color: #fff;
+    border-radius: 12px;
   }
 }
 </style>
