@@ -19,7 +19,10 @@
 				},
 				"usingComponents": {
 					"van-button": "/wxcomponents/vant/dist/button/index",
-					"van-uploader": "/wxcomponents/vant/dist/uploader/index"
+					"van-uploader": "/wxcomponents/vant/dist/uploader/index",
+					"van-dialog": "/wxcomponents/vant/dist/dialog",
+					"van-toast": "/wxcomponents/vant/dist/toast/index",
+					"my-menu": "/wxcomponents/menu/index"
 				}
 			}
 		},
@@ -39,6 +42,21 @@
 						]
 					}
 				}
+			}
+		},
+		{
+			"path": "pages/check/check",
+			"style": {
+				"navigationBarTitleText": "检测王上照片",
+				"usingComponents": {
+					"my-menu": "/wxcomponents/menu/index"
+				}
+			}
+		},
+		{
+			"path": "pages/result/result",
+			"style": {
+				"navigationBarTitleText": "检测结果"
 			}
 		}
 	],

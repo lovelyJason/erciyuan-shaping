@@ -1,7 +1,5 @@
 <template>
   <view class="page-wrapper">
-    <view>二次元变身</view>
-    <hr />
     <swiper
       class="swiper"
       circular
@@ -26,26 +24,49 @@
         </view>
       </swiper-item>
     </swiper>
-    <view class="grid">
+    <uni-grid :column="3" :show-border="false" @change="handleGridClick">
+      <uni-grid-item>
+        <view class="erciyuan"></view>
+        <text class="text">变脸</text>
+      </uni-grid-item>
+    </uni-grid>
+    <!-- <view class="grid">
       <view class="erciyuan"></view>
-    </view>
-    <!-- <view class="flex-center upload-wrapper">
-      <van-uploader
-        :file-list="fileList"
-        @after-read="afterRead"
-        max-count="1"
-        @delete="deleteImg"
-        preview-size="200px"
-      />
-    </view>
-    <view class="flex-center">
-      <van-button :disabled="filename === ''" @click="beautifyImg" type="primary">变脸(由黄某人开发)</van-button>
+      <view class="shaping-title">变脸</view>
     </view> -->
+    <van-dialog
+      use-slot
+      title="上传清晰照结果更明显哦"
+      :show="show"
+      show-cancel-button
+      :async-close="asyncClose"
+      @cancel="cancel"
+      @confirm="beautifyImg"
+    >
+      <view class="grid flex-center upload-wrapper">
+        <van-uploader
+          :file-list="fileList"
+          @after-read="afterRead"
+          max-count="1"
+          @delete="deleteImg"
+          preview-size="80px"
+        />
+      </view>
+    </van-dialog>
+    <van-toast id="van-toast" />
   </view>
 </template>
 
 <script>
+import uniGrid from "@/components/uni-grid/uni-grid.vue"
+import uniGridItem from "@/components/uni-grid-item/uni-grid-item.vue"
+import Toast from '@/wxcomponents/vant/dist/toast/toast.js';
+
 export default {
+  components: {
+    uniGrid,
+    uniGridItem
+  },
   data() {
     return {
       background: ["color1", "color2", "color3"],
@@ -55,15 +76,25 @@ export default {
       duration: 500,
       fileList: [],
       imgBase64: '',
-      filename: ''
+      filename: '',
+      show: false,
+      asyncClose: true
     };
   },
+  onLoad() {
+    const ctx = wx.createCanvasContext('myCanvas')
+    ctx.setFillStyle('red')
+    ctx.fillRect(10, 10, 150, 75)
+    ctx.draw()
+  },
   methods: {
-    changeIndicatorDots(e) {
-      this.indicatorDots = !this.indicatorDots;
+    handleGridClick({detail:{index}}) {
+      if(index === 0) {
+        this.show = true
+      }
     },
-    changeAutoplay(e) {
-      this.autoplay = !this.autoplay;
+    cancel() {
+      this.show = false
     },
     intervalChange(e) {
       this.interval = e.detail.value;
@@ -118,17 +149,22 @@ export default {
       });
     },
     beautifyImg() {
+      if(!this.filename) {
+        Toast('请选择照片');
+        return
+      }
       var that = this
-      wx.request({
-        url: 'http://127.0.0.1:3000/beautify',
-        method: 'POST',
-        data: {
-          filename: that.filename
-        },
-        success: function(res) {
-          console.log(res)
-        }
-      })
+      wx.navigateTo('')
+      // wx.request({
+      //   url: 'http://127.0.0.1:3000/beautify',
+      //   method: 'POST',
+      //   data: {
+      //     filename: that.filename
+      //   },
+      //   success: function(res) {
+      //     that.show = false
+      //   }
+      // })
     },
     deleteImg() {
       this.fileList = [];
@@ -140,9 +176,9 @@ export default {
 </script>
 
 <style lang="less">
-@swiper_height: 380rpx;
+@swiper_height: 420rpx;
 .page-wrapper {
-  padding: 10px 20px;
+  // padding: 10px 20px;
   background-color: #fff;
 }
 .swiper {
@@ -156,7 +192,7 @@ export default {
   image {
     width: 100%;
     height: 100%;
-    border-radius: 20px;
+    // border-radius: 20px;
   }
 }
 .swiper-list {
@@ -186,23 +222,41 @@ export default {
 }
 .upload-wrapper {
   margin-top: 8px;
-}
-.van-uploader {
-  .van-uploader__upload {
-    margin: 0;
+  .van-uploader {
+    .van-uploader__upload {
+      margin: 0;
+    }
   }
 }
 .grid {
   // height: calc(~"100vh - 480rpx - 8px");
-  height: calc(100vh - var(--window-top) - @swiper_height - 20px);
+  height: calc(100vh - var(--wcindow-top) - @swiper_height - 20px);
   background-color: #eee;
   margin-top: 8px;
   padding: 10px 20px 10px 20px;
-  .erciyuan {
-    width: calc(~"50% - 10px");
-    height: calc(~"50% - 10px");
-    background-color: #fff;
-    border-radius: 12px;
-  }
+}
+.uni-grid-wrap {
+  margin-top: 8px;
+  height: calc(100vh - var(--window-top) - @swiper_height - 20px);
+  padding: 10px 20px 10px 20px;
+}
+.uni-grid-item__box {
+  align-items: center;
+}
+.erciyuan {
+  width: calc(~"100% - 25px");
+  height: calc(~"100% - 25px");
+  background: url('https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/timg-128421521.jpeg') no-repeat;
+  background-size: cover;
+  background-color: #fff;
+  border-radius: 12px;
+}
+.text {
+  margin-top: 6px;
+  text-align: center;
+}
+#myCanvas {
+  width: 600px;
+  height: 300px;
 }
 </style>

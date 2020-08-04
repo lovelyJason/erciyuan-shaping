@@ -1,0 +1,28 @@
+<view class="ripple-main {{isShow?'filter':''}}">
+	<view class="v-content">
+		<!-- <view class="tx" style="height: {{CustomBar-StatusBar}}px;padding-top: {{StatusBar}}px;line-height: {{CustomBar-StatusBar}}px;">仿酷安menu</view> -->
+		<view class="ripple" animation="{{animationData}}" hidden='{{hidden}}' style='{{myStyle}}'></view>
+	</view>
+</view>
+
+<view class='bar'>
+	<view class='tabicon'>
+		<view hidden='{{!isShow}}' class='menu' style='height:{{CustomBar}}px;padding-top:{{CustomBar}}px;'>愿每个善良的人都被世界温柔以待</view>
+		<view class='bottom' hidden='{{!isShow}}'>
+			<view class='navlist' wx:for='{{nav}}' wx:for-item="i" wx:for-index="d" wx:key="index">
+				<view class='item  {{isShow?"animation-nav":""}}' style='animation-delay: {{(index+1)*0.1}}s;' wx:for='{{i.navigation}}' wx:key="index">
+					<image class="item-img" mode='widthFix' src='{{item.src}}'></image>
+					<text class='string'>{{item.name}}</text>
+				</view>
+			</view>
+		</view>
+	</view>
+</view>
+<view class="add1" hidden='{{isShow}}'>
+	<view class='send'></view>
+</view>
+<view class="add">
+	<view class="add-inner" bindtap="onClickAdd">
+		<text class="add-inner-text iconfont icon-jia {{menuStyle}}"></text>
+	</view>
+</view>

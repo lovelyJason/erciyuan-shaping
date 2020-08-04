@@ -74,12 +74,18 @@ VantComponent({
       this.onClose('overlay');
     },
     handleAction(action) {
+      // console.log(this.data)
       if (this.data.asyncClose) {
-        this.setData({
-          [`loading.${action}`]: true,
-        });
+        if(action === 'confirm') {
+          this.setData({
+            [`loading.${action}`]: true,
+          });
+        } else if(action === 'cancel') {
+          this.onClose(action);
+        }
+      } else {
+        this.onClose(action);
       }
-      this.onClose(action);
     },
     close() {
       this.setData({
