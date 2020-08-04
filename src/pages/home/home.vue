@@ -72,7 +72,7 @@ export default {
       background: ["color1", "color2", "color3"],
       indicatorDots: true,
       autoplay: true,
-      interval: 2000,
+      interval: 3000,
       duration: 500,
       fileList: [],
       imgBase64: '',
@@ -82,10 +82,10 @@ export default {
     };
   },
   onLoad() {
-    const ctx = wx.createCanvasContext('myCanvas')
-    ctx.setFillStyle('red')
-    ctx.fillRect(10, 10, 150, 75)
-    ctx.draw()
+    // const ctx = wx.createCanvasContext('myCanvas')
+    // ctx.setFillStyle('red')
+    // ctx.fillRect(10, 10, 150, 75)
+    // ctx.draw()
   },
   methods: {
     handleGridClick({detail:{index}}) {
@@ -121,6 +121,7 @@ export default {
     },
     afterRead(event) {
       const { file } = event.detail;
+      console.log(file)
       let that = this;
       // 当设置 mutiple 为 true 时, file 为数组格式，否则为对象格式
       wx.uploadFile({

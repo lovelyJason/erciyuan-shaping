@@ -20,7 +20,7 @@
 				"usingComponents": {
 					"van-button": "/wxcomponents/vant/dist/button/index",
 					"van-uploader": "/wxcomponents/vant/dist/uploader/index",
-					"van-dialog": "/wxcomponents/vant/dist/dialog",
+					"van-dialog": "/wxcomponents/vant/dist/dialog/index",
 					"van-toast": "/wxcomponents/vant/dist/toast/index",
 					"my-menu": "/wxcomponents/menu/index"
 				}
