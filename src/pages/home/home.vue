@@ -90,7 +90,10 @@ export default {
   methods: {
     handleGridClick({detail:{index}}) {
       if(index === 0) {
-        this.show = true
+        // this.show = true // TODO: 直接跳转页面,弹框逻辑稍后处理
+        wx.navigateTo({
+          url: '/pages/upload/upload'
+        })
       }
     },
     cancel() {
@@ -155,7 +158,7 @@ export default {
         return
       }
       var that = this
-      wx.navigateTo('')
+      // wx.navigateTo('')
       // wx.request({
       //   url: 'http://127.0.0.1:3000/beautify',
       //   method: 'POST',

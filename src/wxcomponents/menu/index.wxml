@@ -11,7 +11,14 @@
 		<view class='bottom' hidden='{{!isShow}}'>
 			<view class='navlist' wx:for='{{nav}}' wx:for-item="i" wx:for-index="d" wx:key="index">
 				<view class='item  {{isShow?"animation-nav":""}}' style='animation-delay: {{(index+1)*0.1}}s;' wx:for='{{i.navigation}}' wx:key="index">
-					<image class="item-img" mode='widthFix' src='{{item.src}}'></image>
+					<!-- 打开摄像头或者选取相册 -->
+					<image 
+						class="item-img" 
+						mode='widthFix' 
+						src='{{item.src}}'
+						bindtap="{{ item.mode === 'album' ? 'openAlbum' : 'openCamera' }}"
+					>
+					</image>
 					<text class='string'>{{item.name}}</text>
 				</view>
 			</view>

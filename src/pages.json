@@ -3,7 +3,8 @@
 		{
 			"path": "pages/home/home",
 			"style": {
-				"navigationBarTitleText": "变身",
+				"navigationBarTitleText": "二次元换装",
+				"navigationBarBackgroundColor": "#9adccf",
 				"app-plus": {
 					"bounce": "vertical",
 					"titleNView": {
@@ -30,6 +31,7 @@
 			"path": "pages/about/about",
 			"style": {
 				"navigationBarTitleText": "我的",
+				"navigationBarBackgroundColor": "#9adccf",
 				"app-plus": {
 					"titleNView": {
 						"buttons": [
@@ -45,9 +47,10 @@
 			}
 		},
 		{
-			"path": "pages/check/check",
+			"path": "pages/upload/upload",
 			"style": {
 				"navigationBarTitleText": "检测王上照片",
+				"navigationBarBackgroundColor": "#9adccf",
 				"usingComponents": {
 					"my-menu": "/wxcomponents/menu/index"
 				}

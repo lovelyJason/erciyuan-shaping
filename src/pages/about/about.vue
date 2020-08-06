@@ -29,7 +29,7 @@ export default {};
 
 <style lang="less">
 .block__card {
-  margin: 0 12px 0;
+  margin: 10px 12px 0;
   overflow: hidden;
   border-radius: 8px;
   .erciyuan-cell {

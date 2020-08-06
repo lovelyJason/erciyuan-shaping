@@ -5,6 +5,9 @@ var isShow = false,
 	//获取当前设备的高度
 	height = wx.getSystemInfoSync().windowHeight;
 Component({
+  properties: {
+    
+  },
 	data: {
 		// StatusBar: app.globalData.StatusBar, //状态栏高度
 		// CustomBar: app.globalData.CustomBar, //titleBar高度
@@ -18,11 +21,13 @@ Component({
 		nav: [{
 			navigation: [{
 					name: '相机',
-					src: './img/camera.png'
+          src: './img/camera.png',
+          mode: 'camera'
         },
         {
 					name: '相册',
-					src: './img/photo.png'
+          src: './img/photo.png',
+          mode: 'album'
         }
 
 			],
@@ -71,5 +76,11 @@ Component({
           isShow
         })
     },
+    openAlbum: function() {
+      this.triggerEvent('openAlbum')
+    },
+    openCamera: function() {
+      this.triggerEvent('openCamera')
+    }
   }
 })
