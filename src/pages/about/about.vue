@@ -1,13 +1,13 @@
 <template>
   <view>
     <div class="block__card">
-      <div role="button" tabindex="0" class="erciyuan-cell erciyuan-cell--clickable">
+      <div @click="toNextPage('about-me')" role="button" tabindex="0" class="erciyuan-cell erciyuan-cell--clickable">
         <div class="erciyuan-cell__title">
           <span>关于</span>
         </div>
         <i class="erciyuan-icon erciyuan-icon-arrow erciyuan-cell__right-icon"></i>
       </div>
-      <div role="button" tabindex="0" class="erciyuan-cell erciyuan-cell--clickable">
+      <div @click="toNextPage('history')" role="button" tabindex="0" class="erciyuan-cell erciyuan-cell--clickable">
         <div class="erciyuan-cell__title">
           <span>更新日志</span>
         </div>
@@ -24,7 +24,15 @@
 </template>
 
 <script>
-export default {};
+export default {
+  methods: {
+    toNextPage(page) {
+      wx.navigateTo({
+        url: `/pages/${page}/${page}`
+      })
+    }
+  }
+};
 </script>
 
 <style lang="less">
@@ -34,8 +42,6 @@ export default {};
   border-radius: 8px;
   .erciyuan-cell {
     position: relative;
-    display: -webkit-box;
-    display: -webkit-flex;
     display: flex;
     box-sizing: border-box;
     width: 100%;
@@ -51,7 +57,7 @@ export default {};
     .erciyuan-icon {
       position: relative;
       display: inline-block;
-      font: normal normal normal 14px/1 "vant-icon";
+      font: normal normal normal 14px escape('/') 1 "vant-icon";
       font-size: inherit;
       text-rendering: auto;
       -webkit-font-smoothing: antialiased;

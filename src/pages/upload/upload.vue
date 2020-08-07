@@ -1,6 +1,6 @@
 <template>
   <view class="upload-wrapper">
-    <my-menu @openAlbum="openAlbum" @openCamera="openCamera"></my-menu>
+    <my-menu ref="menu" @openAlbum="openAlbum" @openCamera="openCamera"></my-menu>
   </view>
 </template>
 
@@ -22,9 +22,14 @@ export default {
         success(res) {
           // tempFilePath可以作为img标签的src属性显示图片
           const tempFilePaths = res.tempFilePaths;
-          that.imgUrl = tempFilePaths[0];
+          // that.imgUrl = tempFilePaths[0];
+          // setTimeout(() => {
+          //   // 此处的bug在于下一个页面无法接受到数据,定时器可解决
+          //   uni.$emit('load',{ imgUrl: tempFilePaths[0] })
+          // }, 500)
+          // that.$refs.menu.onClickAdd()
           wx.navigateTo({
-            url: "/pages/result/result"
+            url: `/pages/result/result?img=${tempFilePaths[0]}`
           });
         }
       });
@@ -38,9 +43,9 @@ export default {
         success(res) {
           // tempFilePath可以作为img标签的src属性显示图片
           const tempFilePaths = res.tempFilePaths;
-          that.imgUrl = tempFilePaths[0];
+          // that.imgUrl = tempFilePaths[0];
           wx.navigateTo({
-            url: "/pages/result/result"
+            url: `/pages/result/result?img=${tempFilePaths[0]}`
           });
         }
       });

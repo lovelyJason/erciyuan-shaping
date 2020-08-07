@@ -47,9 +47,47 @@
 			}
 		},
 		{
+			"path": "pages/about-me/about-me",
+			"style": {
+				"navigationBarTitleText": "关于",
+				"navigationBarBackgroundColor": "#9adccf",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [
+							{
+								"text": "\ue534",
+								"fontSrc": "/static/uni.ttf",
+								"fontSize": "22px",
+								"color": "#FFFFFF"
+							}
+						]
+					}
+				}
+			}
+		},
+		{
+			"path": "pages/history/history",
+			"style": {
+				"navigationBarTitleText": "更新日志",
+				"navigationBarBackgroundColor": "#9adccf",
+				"app-plus": {
+					"titleNView": {
+						"buttons": [
+							{
+								"text": "\ue534",
+								"fontSrc": "/static/uni.ttf",
+								"fontSize": "22px",
+								"color": "#FFFFFF"
+							}
+						]
+					}
+				}
+			}
+		},
+		{
 			"path": "pages/upload/upload",
 			"style": {
-				"navigationBarTitleText": "检测王上照片",
+				"navigationBarTitleText": "上传王上照片",
 				"navigationBarBackgroundColor": "#9adccf",
 				"usingComponents": {
 					"my-menu": "/wxcomponents/menu/index"
@@ -59,7 +97,7 @@
 		{
 			"path": "pages/result/result",
 			"style": {
-				"navigationBarTitleText": "检测结果"
+				"navigationBarTitleText": "检测王上照片"
 			}
 		}
 	],
