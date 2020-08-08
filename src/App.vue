@@ -48,6 +48,7 @@
     @import './common/uni.css';
     @import '/wxcomponents/vant/dist/common/index.wxss';
     @import '/components/colorui/main.css';
-    @import '/components/colorui/icon.css'
+		@import '/components/colorui/icon.css';
+		@import './common/normalize.css';
     
 </style>

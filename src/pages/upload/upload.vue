@@ -16,7 +16,7 @@ export default {
   methods: {
     openAlbum() {
       var that = this
-      wx.chooseImage({
+      uni.chooseImage({
         count: 1,
         sourceType: ['album'],
         success(res) {
@@ -28,7 +28,8 @@ export default {
           //   uni.$emit('load',{ imgUrl: tempFilePaths[0] })
           // }, 500)
           // that.$refs.menu.onClickAdd()
-          wx.navigateTo({
+          // TODO: canvas压缩图片
+          uni.navigateTo({
             url: `/pages/result/result?img=${tempFilePaths[0]}`
           });
         }
@@ -37,14 +38,15 @@ export default {
     openCamera() {
       console.log(11)
       var that = this
-      wx.chooseImage({
+      uni.chooseImage({
         count: 1,
         sourceType: ['camera'],
+        sizeType: ['compressed'],
         success(res) {
           // tempFilePath可以作为img标签的src属性显示图片
           const tempFilePaths = res.tempFilePaths;
           // that.imgUrl = tempFilePaths[0];
-          wx.navigateTo({
+          uni.navigateTo({
             url: `/pages/result/result?img=${tempFilePaths[0]}`
           });
         }

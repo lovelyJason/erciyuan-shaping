@@ -97,7 +97,10 @@
 		{
 			"path": "pages/result/result",
 			"style": {
-				"navigationBarTitleText": "检测王上照片"
+				"navigationBarTitleText": "检测王上照片",
+				"usingComponents": {
+					"van-dialog": "/wxcomponents/vant/dist/dialog/index"
+				}
 			}
 		}
 	],

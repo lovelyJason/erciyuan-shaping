@@ -2,6 +2,7 @@
 node_modules/
 unpackage/
 /dist
+# /src/wxcomponents/*/dist/
 
 # local env files
 .env.local

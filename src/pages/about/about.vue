@@ -15,7 +15,17 @@
       </div>
       <div role="button" tabindex="0" class="erciyuan-cell erciyuan-cell--clickable">
         <div class="erciyuan-cell__title">
-          <span>意见反馈</span>
+          <button open-type="contact" type="default" plain="true">
+            <span>联系客服</span>
+          </button>
+        </div>
+        <i class="erciyuan-icon erciyuan-icon-arrow erciyuan-cell__right-icon"></i>
+      </div>
+      <div role="button" tabindex="0" class="erciyuan-cell erciyuan-cell--clickable">
+        <div class="erciyuan-cell__title">
+          <button open-type="feedback" type="default" plain="true">
+            <span>意见反馈</span>
+          </button>
         </div>
         <i class="erciyuan-icon erciyuan-icon-arrow erciyuan-cell__right-icon"></i>
       </div>
@@ -27,7 +37,7 @@
 export default {
   methods: {
     toNextPage(page) {
-      wx.navigateTo({
+      uni.navigateTo({
         url: `/pages/${page}/${page}`
       })
     }
@@ -53,13 +63,19 @@ export default {
     background-color: #fff;
     .erciyuan-cell__title {
       flex: 1;
+      button {
+        border: none;
+        display: flex;
+        padding: 0;
+        font-size: 14px;
+        line-height: 24px
+      }
     }
     .erciyuan-icon {
       position: relative;
       display: inline-block;
       font: normal normal normal 14px escape('/') 1 "vant-icon";
       font-size: inherit;
-      text-rendering: auto;
       -webkit-font-smoothing: antialiased;
     }
     .erciyuan-cell__right-icon {

@@ -4,10 +4,10 @@
 			<view class="cu-item shadow">
 				<view class="content">
 					<view class="desc">
-						<view class="text-content"> 折磨生出苦难，苦难又会加剧折磨，凡间这无穷的循环，将有我来终结！真正的恩典因不完整而美丽，因情感而真诚，因脆弱而自由！</view>
+						<view class="text-content"> 本程序使用精密算法识别人脸并进行动漫化处理,现在仍存在很多不足,我们希望接收到您的宝贵意见,或者您希望增加的功能,可与作者密切交流😘 </view>
 						<view>
-							<view class="cu-tag bg-red light sm round">正义天使</view>
-							<view class="cu-tag bg-green light sm round">史诗</view>
+							<view class="cu-tag bg-red light sm round">二次元换装</view>
+							<view class="cu-tag bg-green light sm round">免费</view>
 						</view>
 					</view>
 				</view>
