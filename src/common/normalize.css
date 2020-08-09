@@ -1,3 +1,7 @@
 :focus {
   outline: none
 }
+.bg-green.light {
+  background-color: rgba(215, 240, 219, 1);
+}
+  

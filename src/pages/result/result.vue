@@ -1,27 +1,38 @@
 <template>
   <view class="result-wrapper">
     <view class="img-preview">
-      <view class="circle-area" :style="{ 'background-image': `url(${loadedImgUrl})` }"></view>
-      <view class="scan"></view>
+      <!-- 初始背景图为空,请求500 -->
+      <view
+        class="circle-area"
+        :style="{ 'background-image': `url(${loadedImgUrl})` }"
+      ></view>
+      <view :class="{ scan: true, 'scan-animation': !hasBack }"></view>
     </view>
-    <view class="loading-text">正在检测中...</view>
+    <view v-if="!hasBack" class="loading-text">正在检测中...</view>
+    <view v-if="isIllegal" class="not-found-text">抱歉,暂无结果😘</view>
     <view
       class="not-found-img"
-      :style="{ 'background-image': `url(${isIllegal ? notFoundImg : searchingImg})` }"
+      :style="{
+        'background-image': `url(${isIllegal ? notFoundImg : searchingImg})`,
+      }"
     ></view>
-    <view v-if="isIllegal" class="not-found-text">抱歉,暂无结果😘</view>
-    <view v-if="!hasBack" class="back-home">
-      <text @click="backHome">返回首页</text>
+    <view
+      @click="backHome($event)"
+      :class="{ 'back-home': true, disabled: !hasBack }"
+    >
+      <text>返回首页</text>
     </view>
-     <van-dialog
+    <van-dialog
       use-slot
       :show="showDialog"
       :async-close="true"
       confirmButtonText="保存到相册"
       class="img-dialog"
+      @cancel="cancel"
       @confirm="saveBeautifiedImg"
+      ref="dialog"
     >
-     <image :src="beautifiedImgBase64"></image>
+      <image :src="beautifiedImgBase64" mode="widthFix"></image>
     </van-dialog>
   </view>
 </template>
@@ -39,8 +50,9 @@ export default {
         "https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/not_found.png",
       searchingImg:
         "https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/searching.png",
-      filename: "",  // 文件名,对应于服务器目录中上传后的文件名,
-      beautifiedImgBase64: ''
+      filename: "", // 文件名,对应于服务器目录中上传后的文件名,
+      beautifiedImgBase64: "",
+      beautifiedImgTempUrl: "",
     };
   },
   onLoad(data) {
@@ -58,9 +70,48 @@ export default {
     if (isLegal) {
       this.upLoadImgToOss(img);
     }
-
   },
   methods: {
+    // 获取用户授权
+    weAuthCheck(type = "writePhotosAlbum") {
+      let resGetting = new Promise((resolve, reject) => {
+        uni.getSetting({
+          success: (res) => {
+            // {authSetting: {scope.address: true, scope.userInfo: true, scope.writePhotosAlbum: true}
+            // errMsg: "getSetting:ok"}
+
+            if (
+              res.authSetting.hasOwnProperty(`scope.${type}`) &&
+              res.authSetting[`scope.${type}`]
+            ) {
+              resolve({
+                succeeded: true,
+              });
+            } else {
+              uni.authorize({
+                scope: `scope.${type}`,
+                success: () => {
+                  resolve({
+                    succeeded: true,
+                  });
+                },
+                fail: (err) => {
+                  reject({
+                    errMsg: err.errMsg,
+                  });
+                },
+              });
+            }
+          },
+          fail: (err) => {
+            reject({
+              errMsg: err.errMsg,
+            });
+          },
+        });
+      });
+      return resGetting;
+    },
     // 检测图片是否涉黄
     checkImgSec() {
       // 某某操作TODO:
@@ -78,76 +129,119 @@ export default {
             let type = imgUrl.split(".").slice(-1)[0];
             let imageBase64 = `data:image/${type};base64,` + base64;
             resolve(imageBase64);
-          }
+          },
         });
       });
     },
     // 保存图片到本地
-    saveBeautifiedImg() {
-      uni.saveImageToPhotosAlbum({
-        filePath: that.beautifiedImgBase64,
-        success: function() {
-          uni.showToast({
-            title: '保存成功'
-          });
+    saveBeautifiedImg(e, a) {
+      var that = this
+      // 如果是这样会有bug,微信默认询问一次,加上authorize询问一次
+      // this.weAuthCheck().catch((err) => {
+      //   if (err.errMsg.includes("auth deny")) {
+      //     // 引导打开设置页,2.3.0版本之后,需要用户tap之后,才能跳转打开设置页
+      //     // uni.openSetting()
+      //   }
+      // });
+      var filePath = that.beautifiedImgTempUrl;
+      wx.saveImageToPhotosAlbum({
+        filePath: filePath,
+        success: function(res) {
+          console.log(res);
+          // uni.showToast({
+          //   title: "保存成功",
+          // });
+          that.$refs.dialog.stopLoading()
+          that.showDialog = false
         },
         fail: function(err) {
+          if (!err.errMsg.includes("cancel")) {
+            uni.showToast({
+              title: errMsg,
+            });
+          }
+        },
+        complete: function() {
+          // hide loading
+        },
+      });
+    },
+    base64ToTempUrl(base64) {
+      var that = this;
+      let fm = wx.getFileSystemManager();
+      let startIndex = base64.indexOf("base64,") + 7;
+      let filePath = wx.env.USER_DATA_PATH + `/${that.filename || "test.png"}`;
+      fm.writeFile({
+        filePath: filePath,
+        encoding: "base64",
+        data: base64.slice(startIndex),
+        success: (res) => {
+          // 存储最终tempUrl供保存调用
+          that.beautifiedImgTempUrl = filePath;
+        },
+        fail: (err) => {
+          console.log(err);
+          // hide loading
           uni.showToast({
-            title: err.message
+            title: err.errMsg,
           });
-        }
-      })
+        },
+      });
     },
     beautifyImg(filename) {
       if (!filename) {
         uni.showToast({
-          title: '请选择照片'
+          title: "请选择照片",
         });
         return;
       }
       var that = this;
       wx.request({
-        url: "http://127.0.0.1:3000/beautify",
+        url: "http://121.43.43.157:3000/beautify",
         method: "POST",
         data: {
-          filename: filename || that.filename
+          filename: filename || that.filename,
         },
         success: function(res) {
-          let { statusCode, errMsg, data } = res
-          if(statusCode === 200) {
-            let { status, msg, data: beautifiedImgBase64 } = data
-            if(status === 0) {
-              that.beautifiedImgBase64 = beautifiedImgBase64
-              that.showDialog = true
+          let { statusCode, errMsg, data } = res;
+          if (statusCode === 200) {
+            let { status, msg, data: beautifiedImgBase64 } = data;
+            if (status === 0) {
+              that.beautifiedImgBase64 = beautifiedImgBase64;
+              console.log('show dialog')
+              that.showDialog = true;
+              that.hasBack = true;
+              // base64转本地路径
+              that.base64ToTempUrl(beautifiedImgBase64);
             }
           } else {
             uni.showToast({
-              title: errMsg
+              title: errMsg,
             });
           }
         },
-        fail: err => {
+        fail: (err) => {
           uni.showToast({
-            title: err.message
+            title: err.errMsg,
           });
-        }
+        },
       });
     },
     upLoadImgToOss(img) {
       var that = this;
       uni.uploadFile({
-        url: "http://127.0.0.1:3000/upload",
+        url: "http://121.43.43.157:3000/upload",
         filePath: img,
         name: "file",
-        success: uploadFileRes => {
+        success: (uploadFileRes) => {
           const { statusCode, errMsg, data } = uploadFileRes;
           if (statusCode === 200) {
             let { status, msg, data: imgUrl } = JSON.parse(data);
-            if(status === 0) {
+            if (status === 0) {
               let filename = imgUrl.split("/").slice(-1)[0];
               that.filename = filename;
               // 转码
-              that.urlTobase64(imgUrl).then(imgBase64Res => {
+              that.urlTobase64(imgUrl).then((imgBase64Res) => {
                 // that.imgBase64 = imgBase64Res
                 // 美化图片
                 that.beautifyImg(filename);
@@ -156,23 +250,24 @@ export default {
           } else {
             // TODO: 换toast
             uni.showToast({
-              title: errMsg
+              title: errMsg,
             });
           }
         },
-        fail: err => {
+        fail: (err) => {
           uni.showToast({
-              title: err.message
+            title: err.errMsg,
           });
-        }
+        },
       });
     },
-    backHome() {
+    backHome(e) {
+      if (!this.hasBack) return;
       uni.switchTab({
-        url: "/pages/home/home"
+        url: "/pages/home/home",
       });
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -182,6 +277,7 @@ export default {
     background-position: 0 100%, 0 0, 0 0, 0 0;
     /* 终止位置 */
     clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+    -webkit-clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
   }
 }
 .result-wrapper {
@@ -211,17 +307,25 @@ export default {
     .scan {
       width: 100%;
       height: calc(~"100% + 70rpx");
-      background: linear-gradient(#1a98ca, #1a98ca),
-        linear-gradient(90deg, #ffffff33 1px, transparent 0, transparent 19px),
-        linear-gradient(#ffffff33 1px, transparent 0, transparent 19px),
-        linear-gradient(transparent, #1a98ca);
       background-size: 100% 1.5%, 10% 100%, 100% 8%, 100% 100%;
       background-repeat: no-repeat, repeat, repeat, no-repeat;
       background-position: 0% 0%, 0 0, 0 0, 0 0;
       /* 初始位置 */
       clip-path: polygon(0% 0%, 100% 0%, 100% 1.5%, 0% 1.5%);
+      -webkit-clip-path: polygon(0% 0%, 100% 0%, 100% 1.5%, 0% 1.5%);
       /* 添加动画效果 */
-      animation: move 2s infinite linear;
+      &.scan-animation {
+        background-image: linear-gradient(#1a98ca, #1a98ca),
+          linear-gradient(90deg, rgba(255, 255, 255, .2) 1px, transparent 0, transparent 19px),
+          linear-gradient(rgba(255, 255, 255, .2) 1px, transparent 0, transparent 19px),
+          linear-gradient(transparent, #1a98ca);
+        background-image: -webkit-linear-gradient(#1a98ca, #1a98ca),
+          -webkit-linear-gradient(90deg, rgba(255, 255, 255, .2) 1px, transparent 0, transparent 19px),
+          -webkit-linear-gradient(rgba(255, 255, 255, .2) 1px, transparent 0, transparent 19px),
+          -webkit-linear-gradient(transparent, #1a98ca);
+        animation: move 2s infinite linear;
+        -webkit-animation: move 2s infinite linear;
+      }
     }
   }
   .loading-text {
@@ -241,6 +345,10 @@ export default {
     color: #cc9966;
   }
   .back-home {
+    margin-top: 8px;
+    &.disabled {
+      opacity: 0.5;
+    }
     text {
       display: block;
       width: 120px;
@@ -250,12 +358,16 @@ export default {
       line-height: 40px;
       color: #fff;
       border-radius: 6px;
-      margin-top: 8px;
     }
   }
   .img-dialog {
+    image {
+      max-height: calc(~"100vh - 500rpx");
+    }
     .dialog-index--van-dialog {
-
+      .van-button__text {
+        font-size: 30rpx;
+      }
     }
   }
 }

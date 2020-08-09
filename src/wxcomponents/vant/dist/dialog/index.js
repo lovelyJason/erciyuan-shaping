@@ -75,17 +75,24 @@ VantComponent({
     },
     handleAction(action) {
       // console.log(this.data)
+      // if (this.data.asyncClose) {
+      //   if(action === 'confirm') {
+      //     this.setData({
+      //       [`loading.${action}`]: true,
+      //     });
+      //   } else if(action === 'cancel') {
+      //     this.onClose(action);
+      //   }
+      // } else {
+      //   this.onClose(action);
+      // }
       if (this.data.asyncClose) {
-        if(action === 'confirm') {
-          this.setData({
-            [`loading.${action}`]: true,
-          });
-        } else if(action === 'cancel') {
-          this.onClose(action);
-        }
-      } else {
-        this.onClose(action);
+        this.setData({
+          [`loading.${action}`]: true
+        });
       }
+
+      this.onClose(action);
     },
     close() {
       this.setData({
