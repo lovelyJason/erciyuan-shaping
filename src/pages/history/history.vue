@@ -3,7 +3,7 @@
      <view class="cu-card article" :class="isCard?'no-card':''">
 			<view class="cu-item shadow">
         <view class="custom-title">
-          版本: v0.0.1
+          版本: v1.0.0
         </view>
 				<view class="content">
 					<view class="desc">

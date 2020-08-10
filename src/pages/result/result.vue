@@ -34,8 +34,22 @@
     >
       <image :src="beautifiedImgBase64" mode="widthFix"></image>
     </van-dialog>
+    <view
+      class="suspended-ball movable"
+      id="moveDiv"
+      @mousedown="utils.down"
+      @touchstart="utils.down"
+      @mousemove="utils.move"
+      @touchmove="utils.move"
+      @mouseup="utils.end"
+      @touchend="utils.end"
+    >
+      <view></view>
+    </view>
   </view>
 </template>
+
+<script module="utils" lang="wxs" src="./utils.wxs"></script>
 
 <script>
 export default {
@@ -133,9 +147,44 @@ export default {
         });
       });
     },
+    upLoadImgToOss(img) {
+      var that = this;
+      uni.uploadFile({
+        url: "https://www.qdovo.com/api/upload",
+        filePath: img,
+        name: "file",
+        success: (uploadFileRes) => {
+          const { statusCode, errMsg, data } = uploadFileRes;
+          console.log(uploadFileRes)
+          if (statusCode === 200) {
+            let { status, msg, data: imgUrl } = JSON.parse(data);
+            if (status === 0) {
+              let filename = imgUrl.split("/").slice(-1)[0];
+              that.filename = filename;
+              // 美化图片
+              that.beautifyImg(filename);
+              // that.urlTobase64(imgUrl).then((imgBase64Res) => {
+              //   // 转码, 已在服务器根据filename匹配文件转base64,此处无需处理
+              //   // that.imgBase64 = imgBase64Res
+              // });
+            }
+          } else {
+            // TODO: 换toast
+            uni.showToast({
+              title: errMsg,
+            });
+          }
+        },
+        fail: (err) => {
+          uni.showToast({
+            title: err.errMsg,
+          });
+        },
+      });
+    },
     // 保存图片到本地
     saveBeautifiedImg(e, a) {
-      var that = this
+      var that = this;
       // 如果是这样会有bug,微信默认询问一次,加上authorize询问一次
       // this.weAuthCheck().catch((err) => {
       //   if (err.errMsg.includes("auth deny")) {
@@ -151,8 +200,8 @@ export default {
           // uni.showToast({
           //   title: "保存成功",
           // });
-          that.$refs.dialog.stopLoading()
-          that.showDialog = false
+          that.$refs.dialog.stopLoading();
+          that.showDialog = false;
         },
         fail: function(err) {
           if (!err.errMsg.includes("cancel")) {
@@ -197,7 +246,7 @@ export default {
       }
       var that = this;
       wx.request({
-        url: "http://121.43.43.157:3000/beautify",
+        url: "https://www.qdovo.com/api/beautify",
         method: "POST",
         data: {
           filename: filename || that.filename,
@@ -208,47 +257,13 @@ export default {
             let { status, msg, data: beautifiedImgBase64 } = data;
             if (status === 0) {
               that.beautifiedImgBase64 = beautifiedImgBase64;
-              console.log('show dialog')
+              console.log("show dialog");
               that.showDialog = true;
               that.hasBack = true;
               // base64转本地路径
               that.base64ToTempUrl(beautifiedImgBase64);
             }
           } else {
-            uni.showToast({
-              title: errMsg,
-            });
-          }
-        },
-        fail: (err) => {
-          uni.showToast({
-            title: err.errMsg,
-          });
-        },
-      });
-    },
-    upLoadImgToOss(img) {
-      var that = this;
-      uni.uploadFile({
-        url: "http://121.43.43.157:3000/upload",
-        filePath: img,
-        name: "file",
-        success: (uploadFileRes) => {
-          const { statusCode, errMsg, data } = uploadFileRes;
-          if (statusCode === 200) {
-            let { status, msg, data: imgUrl } = JSON.parse(data);
-            if (status === 0) {
-              let filename = imgUrl.split("/").slice(-1)[0];
-              that.filename = filename;
-              // 转码
-              that.urlTobase64(imgUrl).then((imgBase64Res) => {
-                // that.imgBase64 = imgBase64Res
-                // 美化图片
-                that.beautifyImg(filename);
-              });
-            }
-          } else {
-            // TODO: 换toast
             uni.showToast({
               title: errMsg,
             });
@@ -284,6 +299,8 @@ export default {
   display: flex;
   flex-direction: column;
   align-items: center;
+  position: relative;
+  height: 100vh;
   .img-preview {
     width: 100%;
     height: 500rpx;
@@ -316,13 +333,22 @@ export default {
       /* 添加动画效果 */
       &.scan-animation {
         background-image: linear-gradient(#1a98ca, #1a98ca),
-          linear-gradient(90deg, rgba(255, 255, 255, .2) 1px, transparent 0, transparent 19px),
-          linear-gradient(rgba(255, 255, 255, .2) 1px, transparent 0, transparent 19px),
+          linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.2) 1px,
+            transparent 0,
+            transparent 19px
+          ),
+          linear-gradient(
+            rgba(255, 255, 255, 0.2) 1px,
+            transparent 0,
+            transparent 19px
+          ),
           linear-gradient(transparent, #1a98ca);
-        background-image: -webkit-linear-gradient(#1a98ca, #1a98ca),
-          -webkit-linear-gradient(90deg, rgba(255, 255, 255, .2) 1px, transparent 0, transparent 19px),
-          -webkit-linear-gradient(rgba(255, 255, 255, .2) 1px, transparent 0, transparent 19px),
-          -webkit-linear-gradient(transparent, #1a98ca);
+        // background-image: -webkit-linear-gradient(#1a98ca, #1a98ca),
+        //   -webkit-linear-gradient(90deg, rgba(255, 255, 255, 0.2) 1px, transparent 0, transparent 19px),
+        //   -webkit-linear-gradient(rgba(255, 255, 255, 0.2) 1px, transparent 0, transparent 19px),
+        //   -webkit-linear-gradient(transparent, #1a98ca);
         animation: move 2s infinite linear;
         -webkit-animation: move 2s infinite linear;
       }
@@ -369,6 +395,43 @@ export default {
         font-size: 30rpx;
       }
     }
+  }
+}
+// 悬浮球
+.suspended-ball {
+  position: fixed;
+  width: 50px;
+  height: 50px;
+  background: #3071a9;
+  border-radius: 10px;
+  -moz-border-radius: 10px;
+  -webkit-border-radius: 10px;
+  filter: alpha(opacity=50);
+  /*IE滤镜，透明度50%*/
+  -moz-opacity: 0.5;
+  /*Firefox私有，透明度50%*/
+  opacity: 0.5;
+  /*其他，透明度50%*/
+  z-index: 100;
+  /*最高的层级*/
+  top: 10%;
+  right: 1px;
+  view {
+    width: 30px;
+    height: 30px;
+    margin: 10px;
+    background: #fff;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+    filter: alpha(opacity=80);
+    -moz-opacity: 0.8;
+    opacity: 0.8;
+    // background-image: url("/Images/Self.png");
+    background-repeat: no-repeat;
+    background-size: 80% auto;
+    background-position-x: 50%;
+    background-position-y: 50%;
   }
 }
 </style>

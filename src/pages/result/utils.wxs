@@ -1,0 +1,70 @@
+var position = { x: 0, y: 0 }
+var nx = '', ny = '', dx = '', dy = '', xPum = '', yPum = ''
+var flags = false
+var ballSize = 50
+
+// wxs貌似不支持es6写法
+
+function down(event, ins) {
+  flags = true
+  var touch
+  if (event.touches) {
+      touch = event.touches[0]
+  } else {
+      touch = event
+  }
+  position.x = touch.clientX
+  position.y = touch.clientY
+  // getStyle获取不到offset系列?原因未可知
+  var offsetLeft = event.currentTarget.offsetLeft
+  var offsetTop = event.currentTarget.offsetTop
+  dx = offsetLeft
+  dy = offsetTop
+  return false
+}
+function move(event, ins) {
+  // 此处无uni,只能用官方提供到的api
+  if (flags) {
+      var touch
+      if (event.touches) {
+          touch = event.touches[0]
+      } else {
+          touch = event
+      }
+      nx = touch.clientX - position.x
+      ny = touch.clientY - position.y
+      xPum = dx + nx
+      yPum = dy + ny
+      // 添加限制：只允许在屏幕内拖动
+      // document.body.clientWidth不适用; 获取到的宽高为字符串
+      var maxWidth = parseInt(ins.selectComponent('.result-wrapper').getComputedStyle(['width']).width) - ballSize// 屏幕宽度减去悬浮框宽高
+      var maxHeight = parseInt(ins.selectComponent('.result-wrapper').getComputedStyle(['height']).height) - ballSize
+      console.log(maxWidth, maxHeight)
+      if (xPum < 14) { // 屏幕x限制
+          xPum = 14
+      } else if (xPum > maxWidth) {
+          xPum = maxWidth
+      }
+      if (yPum < 14) { // 屏幕y限制
+          yPum = 14
+      } else if (yPum > maxHeight) {
+          yPum = maxHeight
+      }
+      // console.log(xPum, yPum)
+      ins.selectComponent('.movable').setStyle({
+        left: xPum + 'px',
+        top: yPum + 'px'
+      })
+      
+      // $refs.moveDiv.style.left = xPum + 'px'
+      // $refs.moveDiv.style.top = yPum + 'px'
+  }
+}
+function end() {
+  flags = false
+}
+module.exports = {
+  down: down,
+  move: move,
+  end: end
+}
