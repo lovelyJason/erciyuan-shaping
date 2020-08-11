@@ -44,7 +44,74 @@
       @mouseup="utils.end"
       @touchend="utils.end"
     >
-      <view></view>
+      <view @click="clickDot" id="inner"></view>
+    </view>
+    <view
+      class="cu-modal drawer-modal justify-end"
+      :class="modalName == 'DrawerModalR' ? 'show' : ''"
+      @tap="hideModal"
+    >
+      <view
+        class="cu-dialog basis-lg"
+        @tap.stop=""
+        :style="[{ top: 0 + 'px', height: 'calc(100vh' + 'px)' }]"
+      >
+        <view class="cu-list menu text-left">
+          <view
+            class="cu-item arrow"
+            v-for="(item, index) in drawList"
+            :key="index"
+          >
+            <view class="content">
+              <view @click="onItemClick(index)">{{ item.title }}</view>
+            </view>
+          </view>
+          <!-- 戴口罩的8种编码 -->
+          <view
+            :class="{
+              'mask-menus': true,
+              'animation-slide-bottom': showAnimation,
+            }"
+            :style="{display: showAnimation ? 'block' : 'none'}"
+          >
+            <radio-group class="block" @change="RadioChange">
+              <view class="cu-form-group">
+                <view class="title">1号口罩</view>
+                <radio :class="radio === '1' ? 'checked' : ''" :checked="radio === '1' ? true : false" value="1"></radio>
+              </view>
+              <view class="cu-form-group">
+                <view class="title">2号口罩</view>
+                <radio :class="radio === '2' ? 'checked' : ''" :checked="radio === '2' ? true : false" value="2"></radio>
+              </view>
+              <view class="cu-form-group">
+                <view class="title">3号口罩</view>
+                <radio :class="radio === '3' ? 'checked' : ''" :checked="radio === '3' ? true : false" value="3"></radio>
+              </view>
+              <view class="cu-form-group">
+                <view class="title">4号口罩</view>
+                <radio :class="radio === '4' ? 'checked' : ''" :checked="radio === '4' ? true : false" value="4"></radio>
+              </view>
+              <view class="cu-form-group">
+                <view class="title">5号口罩</view>
+                <radio :class="radio === '5' ? 'checked' : ''" :checked="radio === '5' ? true : false" value="5"></radio>
+              </view>
+              <view class="cu-form-group">
+                <view class="title">6号口罩</view>
+                <radio :class="radio === '6' ? 'checked' : ''" :checked="radio === '6' ? true : false" value="6"></radio>
+              </view>
+              <view class="cu-form-group">
+                <view class="title">7号口罩</view>
+                <radio :class="radio === '7' ? 'checked' : ''" :checked="radio === '7' ? true : false" value="7"></radio>
+              </view>
+              <view class="cu-form-group">
+                <view class="title">8号口罩</view>
+                <radio :class="radio === '8' ? 'checked' : ''" :checked="radio === '8' ? true : false" value="8"></radio>
+              </view>
+            </radio-group>
+            <button class="cu-btn round shadow green">重新变身</button>
+          </view>
+        </view>
+      </view>
     </view>
   </view>
 </template>
@@ -67,6 +134,11 @@ export default {
       filename: "", // 文件名,对应于服务器目录中上传后的文件名,
       beautifiedImgBase64: "",
       beautifiedImgTempUrl: "",
+      modalName: null,
+      CustomBar: this.CustomBar,
+      drawList: [{ title: "什么?不满意?换个姿势?" }, { title: "戴上口罩" }],
+      willAnimate: false,
+      radio: '1'
     };
   },
   onLoad(data) {
@@ -85,7 +157,53 @@ export default {
       this.upLoadImgToOss(img);
     }
   },
+  computed: {
+    showAnimation: function() {
+      if(this.modalName === 'DrawerModalR') {
+        return this.willAnimate
+      } else {
+        // 隐藏modal后移除动画类名
+        return false
+      }
+    }
+  },
+
   methods: {
+    // slideMenu() {
+    // 没有setStyle的api
+    //   var query = uni.createSelectorQuery()
+    //   var view = query.select('#moveDiv')
+    //   view.boundingClientRect(function(rect) {
+    //     console.log(rect)
+    //   }).exec()
+    // },
+    // 切换口罩按钮
+    RadioChange(e) {
+      this.radio = e.detail.value
+    },
+    wearMask() {
+      this.willAnimate = true;
+      // this.beautifyImg(this.filename);
+    },
+    onItemClick(index) {
+      switch (index) {
+        case 0:
+          break;
+        case 1:
+          // 戴口罩
+          this.wearMask();
+          break;
+        default:
+          break;
+      }
+    },
+    clickDot() {
+      this.modalName = "DrawerModalR";
+    },
+    hideModal() {
+      this.modalName = null;
+      this.willAnimate = false
+    },
     // 获取用户授权
     weAuthCheck(type = "writePhotosAlbum") {
       let resGetting = new Promise((resolve, reject) => {
@@ -131,6 +249,7 @@ export default {
       // 某某操作TODO:
       return true;
     },
+    // 暂时用不到,服务端转base64
     urlTobase64(imgUrl) {
       var that = this;
       return new Promise((resolve, reject) => {
@@ -155,7 +274,7 @@ export default {
         name: "file",
         success: (uploadFileRes) => {
           const { statusCode, errMsg, data } = uploadFileRes;
-          console.log(uploadFileRes)
+          console.log(uploadFileRes);
           if (statusCode === 200) {
             let { status, msg, data: imgUrl } = JSON.parse(data);
             if (status === 0) {
@@ -237,7 +356,7 @@ export default {
         },
       });
     },
-    beautifyImg(filename) {
+    beautifyImg(filename, ifWearMask) {
       if (!filename) {
         uni.showToast({
           title: "请选择照片",
@@ -250,6 +369,7 @@ export default {
         method: "POST",
         data: {
           filename: filename || that.filename,
+          ifWearMask,
         },
         success: function(res) {
           let { statusCode, errMsg, data } = res;
@@ -356,7 +476,7 @@ export default {
   }
   .loading-text {
     text-align: center;
-    font-size: 14px;
+    font-size: 30rpx;
     color: #cc9966;
     margin-top: 8px;
   }
@@ -399,6 +519,7 @@ export default {
 }
 // 悬浮球
 .suspended-ball {
+  @suspend-position-x: 1px;
   position: fixed;
   width: 50px;
   height: 50px;
@@ -415,8 +536,18 @@ export default {
   z-index: 100;
   /*最高的层级*/
   top: 10%;
-  right: 1px;
-  view {
+  right: @suspend-position-x;
+  &.wrapper-open {
+    width: 30px;
+    height: 120rpx;
+    border-radius: 15px;
+    -moz-border-radius: 15px;
+    -webkit-border-radius: 15px;
+    background: #fff;
+    border: 1px solid #3071a9;
+    right: 11px;
+  }
+  > view {
     width: 30px;
     height: 30px;
     margin: 10px;
@@ -432,6 +563,18 @@ export default {
     background-size: 80% auto;
     background-position-x: 50%;
     background-position-y: 50%;
+    &.menu-open {
+      margin: 0;
+      width: calc(~"100% - 2px");
+      height: calc(~"100% - 2px");
+    }
+  }
+}
+.cu-modal {
+  .mask-menus {
+    width: 100%;
+    // height: 200px;
+    // background-color: pink;
   }
 }
 </style>

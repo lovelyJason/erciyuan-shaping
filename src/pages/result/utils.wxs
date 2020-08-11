@@ -20,7 +20,7 @@ function down(event, ins) {
   var offsetTop = event.currentTarget.offsetTop
   dx = offsetLeft
   dy = offsetTop
-  return false
+  // return false
 }
 function move(event, ins) {
   // 此处无uni,只能用官方提供到的api
@@ -39,7 +39,7 @@ function move(event, ins) {
       // document.body.clientWidth不适用; 获取到的宽高为字符串
       var maxWidth = parseInt(ins.selectComponent('.result-wrapper').getComputedStyle(['width']).width) - ballSize// 屏幕宽度减去悬浮框宽高
       var maxHeight = parseInt(ins.selectComponent('.result-wrapper').getComputedStyle(['height']).height) - ballSize
-      console.log(maxWidth, maxHeight)
+      // console.log(maxWidth, maxHeight)
       if (xPum < 14) { // 屏幕x限制
           xPum = 14
       } else if (xPum > maxWidth) {
@@ -63,8 +63,15 @@ function move(event, ins) {
 function end() {
   flags = false
 }
+function click(event, ins) {
+  var outerView = ins.selectComponent('#moveDiv')
+  var innerView = ins.selectComponent('#inner')
+  outerView.addClass('wrapper-open')
+  innerView.addClass('menu-open')
+}
 module.exports = {
   down: down,
   move: move,
+  click: click,
   end: end
 }
