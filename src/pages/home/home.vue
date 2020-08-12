@@ -10,17 +10,26 @@
     >
       <swiper-item>
         <view class="swiper-item">
-          <image mode="aspectFill" src="https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/下载.png"></image>
+          <image
+            mode="aspectFill"
+            src="https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/下载.png"
+          ></image>
         </view>
       </swiper-item>
       <swiper-item>
         <view class="swiper-item">
-          <image mode="aspectFill" src="https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/下载.jpeg"></image>
+          <image
+            mode="aspectFill"
+            src="https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/下载.jpeg"
+          ></image>
         </view>
       </swiper-item>
       <swiper-item>
         <view class="swiper-item">
-          <image mode="aspectFill" src="https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/556945514.png"></image>
+          <image
+            mode="aspectFill"
+            src="https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/556945514.png"
+          ></image>
         </view>
       </swiper-item>
     </swiper>
@@ -58,14 +67,14 @@
 </template>
 
 <script>
-import uniGrid from "@/components/uni-grid/uni-grid.vue"
-import uniGridItem from "@/components/uni-grid-item/uni-grid-item.vue"
-import Toast from '@/wxcomponents/vant/dist/toast/toast.js';
+import uniGrid from "@/components/uni-grid/uni-grid.vue";
+import uniGridItem from "@/components/uni-grid-item/uni-grid-item.vue";
+import Toast from "@/wxcomponents/vant/dist/toast/toast.js";
 
 export default {
   components: {
     uniGrid,
-    uniGridItem
+    uniGridItem,
   },
   data() {
     return {
@@ -75,10 +84,10 @@ export default {
       interval: 3000,
       duration: 500,
       fileList: [],
-      imgBase64: '',
-      filename: '',
+      imgBase64: "",
+      filename: "",
       show: false,
-      asyncClose: true
+      asyncClose: true,
     };
   },
   onLoad() {
@@ -86,18 +95,44 @@ export default {
     // ctx.setFillStyle('red')
     // ctx.fillRect(10, 10, 150, 75)
     // ctx.draw()
+
+    // 测试云函数
+    // this.testCloudFunction();
   },
   methods: {
-    handleGridClick({detail:{index}}) {
-      if(index === 0) {
+    testCloudFunction() {
+      var content = '法轮功'
+      wx.cloud.init()
+      wx.cloud
+        .callFunction({
+          name: "checkMsg",
+          data: {
+            content: content,
+          },
+        })
+        .then((res) => {
+          console.log(res.result);
+          if (res.result.code == 300) {
+            uni.showModal({
+              title: "温馨提示",
+              content:
+                "你所输入的内容可能含有违法违规内容，不支持进行下一步操作",
+            });
+            return;
+          } else {
+          }
+        });
+    },
+    handleGridClick({ detail: { index } }) {
+      if (index === 0) {
         // this.show = true // TODO: 直接跳转页面,弹框逻辑稍后处理
         wx.navigateTo({
-          url: '/pages/upload/upload'
-        })
+          url: "/pages/upload/upload",
+        });
       }
     },
     cancel() {
-      this.show = false
+      this.show = false;
     },
     intervalChange(e) {
       this.interval = e.detail.value;
@@ -106,7 +141,7 @@ export default {
       this.duration = e.detail.value;
     },
     urlTobase64(url) {
-      var that = this
+      var that = this;
       return new Promise((resolve, reject) => {
         wx.request({
           url: url,
@@ -114,17 +149,16 @@ export default {
           responseType: "arraybuffer",
           success: function(res) {
             let base64 = wx.arrayBufferToBase64(res.data);
-            let type = url.split('.').slice(-1)[0]
+            let type = url.split(".").slice(-1)[0];
             let imageBase64 = `data:image/${type};base64,` + base64;
-            resolve(imageBase64)           
-          }
+            resolve(imageBase64);
+          },
         });
-
-      })
+      });
     },
     afterRead(event) {
       const { file } = event.detail;
-      console.log(file)
+      console.log(file);
       let that = this;
       // 当设置 mutiple 为 true 时, file 为数组格式，否则为对象格式
       wx.uploadFile({
@@ -141,23 +175,23 @@ export default {
               fileList.push({ ...file, url: data });
               that.fileList = fileList;
               // 存储服务端返回的filename
-              var filename = data.split('/').slice(-1)[0]
-              that.filename = filename
+              var filename = data.split("/").slice(-1)[0];
+              that.filename = filename;
               // 转码
-              let imgBase64 = that.urlTobase64(data).then(res1 => {
-                that.imgBase64 = res1
-              })
+              let imgBase64 = that.urlTobase64(data).then((res1) => {
+                that.imgBase64 = res1;
+              });
             }
           }
-        }
+        },
       });
     },
     beautifyImg() {
-      if(!this.filename) {
-        Toast('请选择照片');
-        return
+      if (!this.filename) {
+        Toast("请选择照片");
+        return;
       }
-      var that = this
+      var that = this;
       // wx.navigateTo('')
       // wx.request({
       //   url: 'http://127.0.0.1:3000/beautify',
@@ -172,10 +206,10 @@ export default {
     },
     deleteImg() {
       this.fileList = [];
-      this.imgBase64 = ''
-      this.filename = ''
-    }
-  }
+      this.imgBase64 = "";
+      this.filename = "";
+    },
+  },
 };
 </script>
 
@@ -250,7 +284,8 @@ export default {
 .erciyuan {
   width: calc(~"100% - 25px");
   height: calc(~"100% - 25px");
-  background: url('https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/timg-128421521.jpeg') no-repeat;
+  background: url("https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/timg-128421521.jpeg")
+    no-repeat;
   background-size: cover;
   background-color: #fff;
   border-radius: 12px;

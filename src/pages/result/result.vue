@@ -405,82 +405,94 @@ export default {
     },
     base64ToTempUrl(base64) {
       var that = this;
-      let fm = wx.getFileSystemManager();
-      let startIndex = base64.indexOf("base64,") + 7;
-      let filePath = wx.env.USER_DATA_PATH + `/${that.filename || "test.png"}`;
-      fm.writeFile({
-        filePath: filePath,
-        encoding: "base64",
-        data: base64.slice(startIndex),
-        success: (res) => {
-          // 存储最终tempUrl供保存调用
-          that.beautifiedImgTempUrl = filePath;
-        },
-        fail: (err) => {
-          // hide loading
-          uni.showToast({
-            title: err.errMsg,
-            icon: "none",
-          });
-        },
-      });
+      return new Promise((resolve, reject) => {
+        let fm = wx.getFileSystemManager();
+        let startIndex = base64.indexOf("base64,") + 7;
+        let filePath = wx.env.USER_DATA_PATH + `/${that.filename || "test.png"}`;
+        fm.writeFile({
+          filePath: filePath,
+          encoding: "base64",
+          data: base64.slice(startIndex),
+          success: (res) => {
+            // 存储最终tempUrl供保存调用
+            that.beautifiedImgTempUrl = filePath;
+            resolve(filePath)
+          },
+          fail: (err) => {
+            // hide loading
+            reject({
+              errMsg: 'to tempUrl fail'
+            })
+            uni.showToast({
+              title: err.errMsg,
+              icon: "none",
+            });
+          },
+        });
+      })
     },
     beautifyImg(filename, mask_id) {
       // 调试代码
-      var that = this
-      that.beautifyNum++
-      return new Promise((resolve, reject) => {
-        setTimeout(() => {
-          resolve()
-        }, 1000);
-      })
+      // var that = this
+      // that.beautifyNum++
+      // return new Promise((resolve, reject) => {
+      //   setTimeout(() => {
+      //     resolve()
+      //   }, 1000);
+      // })
 
       // --- 分界线
 
-      // if (!filename) {
-      //   uni.showToast({
-      //     title: "请选择照片",
-      //     icon: "none",
-      //   });
-      //   return;
-      // }
-      // var that = this;
-      // wx.request({
-      //   url:  that.testApi ? "http://127.0.0.1:3000/api/beautify" : "https://www.qdovo.com/api/beautify",
-      //   method: "POST",
-      //   data: {
-      //     filename: filename || that.filename,
-      //     mask_id: mask_id || null,
-      //   },
-      //   success: function(res) {
-      //     let { statusCode, errMsg, data } = res;
-      //     if (statusCode === 200) {
-      //       let { status, msg, data: beautifiedImgBase64 } = data;
-      //       if (status === 0) {
-      //         that.beautifiedImgBase64 = beautifiedImgBase64;
-      //         that.showDialog = true;
-      //         that.beautifyNum++
-      //         
-      //         // base64转本地路径
-      //         that.base64ToTempUrl(beautifiedImgBase64);
-      //       }
-      //     } else {
-      //       uni.showToast({
-      //         title: errMsg,
-      //         icon: "none",
-      //       });
-      //     }
-      //   },
-      //   fail: (err) => {
-      //     uni.showToast({
-      //       title: err.errMsg,
-      //       icon: "none",
-      //     });
-      //   },
-      //   complete: () => {
-      //     that.hasBack = true;
-      //   }
-      // });
+      var that = this
+      return new Promise((resolve, reject) => {
+        if (!filename) {
+          uni.showToast({
+            title: "请选择照片",
+            icon: "none",
+          });
+          return;
+        }
+        var that = this;
+        wx.request({
+          url:  that.testApi ? "http://127.0.0.1:3000/api/beautify" : "https://www.qdovo.com/api/beautify",
+          method: "POST",
+          data: {
+            filename: filename || that.filename,
+            mask_id: mask_id || null,
+          },
+          success: async function(res) {
+            let { statusCode, errMsg, data } = res;
+            if (statusCode === 200) {
+              let { status, msg, data: beautifiedImgBase64 } = data;
+              if (status === 0) {
+                that.beautifiedImgBase64 = beautifiedImgBase64;
+                that.showDialog = true;
+                that.beautifyNum++
+                // base64转本地路径
+                that.base64ToTempUrl(beautifiedImgBase64);
+                resolve(true)
+              }
+            } else {
+              uni.showToast({
+                title: errMsg,
+                icon: "none",
+              });
+              reject(false)
+            }
+          },
+          fail: (err) => {
+            uni.showToast({
+              title: err.errMsg,
+              icon: "none",
+            });
+            reject(false)
+          },
+          complete: () => {
+            that.hasBack = true;
+          }
+        });
+      })
+
     },
     backHome(e) {
       if (!this.hasBack) return;
