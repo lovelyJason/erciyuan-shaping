@@ -181,7 +181,7 @@ export default {
       drawList: [{ title: "什么?不满意?换个姿势?" }, { title: "戴上口罩" }],
       radio: "1",
       activeName: '',
-      testApi: true,
+      testApi: false,
       beautifyNum: 0
     };
   },
