@@ -3,7 +3,7 @@
 		{
 			"path": "pages/home/home",
 			"style": {
-				"navigationBarTitleText": "二次元换装",
+				"navigationBarTitleText": "二次元变身",
 				"navigationBarBackgroundColor": "#9adccf",
 				"app-plus": {
 					"bounce": "vertical",
