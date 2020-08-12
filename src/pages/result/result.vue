@@ -57,7 +57,93 @@
         :style="[{ top: 0 + 'px', height: 'calc(100vh' + 'px)' }]"
       >
         <view class="cu-list menu text-left">
-          <view
+          <van-collapse accordion :value="activeName" @change="onChange">
+            <van-collapse-item title="什么?不满意?换个姿势?" name="1" >
+                <button disabled class="cu-btn round shadow line-red">正在开放中</button>
+            </van-collapse-item>
+            <van-collapse-item title="戴上口罩试试" name="2">
+              <!-- 戴口罩的8种编码 -->
+              <view
+                :class="{
+                  'mask-menus': true,
+                  /*'animation-slide-bottom': showAnimation,*/
+                }"
+              >
+                <radio-group class="block" @change="RadioChange">
+                  <view class="cu-form-group">
+                    <view class="title">风格1</view>
+                    <radio
+                      :class="radio === '1' ? 'checked' : ''"
+                      :checked="radio === '1' ? true : false"
+                      value="1"
+                    ></radio>
+                  </view>
+                  <view class="cu-form-group">
+                    <view class="title">风格2</view>
+                    <radio
+                      :class="radio === '2' ? 'checked' : ''"
+                      :checked="radio === '2' ? true : false"
+                      value="2"
+                    ></radio>
+                  </view>
+                  <view class="cu-form-group">
+                    <view class="title">风格3</view>
+                    <radio
+                      :class="radio === '3' ? 'checked' : ''"
+                      :checked="radio === '3' ? true : false"
+                      value="3"
+                    ></radio>
+                  </view>
+                  <view class="cu-form-group">
+                    <view class="title">风格4</view>
+                    <radio
+                      :class="radio === '4' ? 'checked' : ''"
+                      :checked="radio === '4' ? true : false"
+                      value="4"
+                    ></radio>
+                  </view>
+                  <view class="cu-form-group">
+                    <view class="title">风格5</view>
+                    <radio
+                      :class="radio === '5' ? 'checked' : ''"
+                      :checked="radio === '5' ? true : false"
+                      value="5"
+                    ></radio>
+                  </view>
+                  <view class="cu-form-group">
+                    <view class="title">风格6</view>
+                    <radio
+                      :class="radio === '6' ? 'checked' : ''"
+                      :checked="radio === '6' ? true : false"
+                      value="6"
+                    ></radio>
+                  </view>
+                  <view class="cu-form-group">
+                    <view class="title">风格7</view>
+                    <radio
+                      :class="radio === '7' ? 'checked' : ''"
+                      :checked="radio === '7' ? true : false"
+                      value="7"
+                    ></radio>
+                  </view>
+                  <view class="cu-form-group">
+                    <view class="title">风格8</view>
+                    <radio
+                      :class="radio === '8' ? 'checked' : ''"
+                      :checked="radio === '8' ? true : false"
+                      value="8"
+                    ></radio>
+                  </view>
+                </radio-group>
+                <button :disabled="beautifyNum >= 3" @click="wearMask" class="cu-btn round shadow line-green">戴口罩</button>
+                <view>
+                  <text v-if="beautifyNum >= 3" style="color: #dbdee2;">您今天次数已超上限</text>
+                </view>
+              </view>
+            </van-collapse-item>
+          </van-collapse>
+
+          <!-- <view
             class="cu-item arrow"
             v-for="(item, index) in drawList"
             :key="index"
@@ -65,51 +151,7 @@
             <view class="content">
               <view @click="onItemClick(index)">{{ item.title }}</view>
             </view>
-          </view>
-          <!-- 戴口罩的8种编码 -->
-          <view
-            :class="{
-              'mask-menus': true,
-              'animation-slide-bottom': showAnimation,
-            }"
-            :style="{display: showAnimation ? 'block' : 'none'}"
-          >
-            <radio-group class="block" @change="RadioChange">
-              <view class="cu-form-group">
-                <view class="title">1号口罩</view>
-                <radio :class="radio === '1' ? 'checked' : ''" :checked="radio === '1' ? true : false" value="1"></radio>
-              </view>
-              <view class="cu-form-group">
-                <view class="title">2号口罩</view>
-                <radio :class="radio === '2' ? 'checked' : ''" :checked="radio === '2' ? true : false" value="2"></radio>
-              </view>
-              <view class="cu-form-group">
-                <view class="title">3号口罩</view>
-                <radio :class="radio === '3' ? 'checked' : ''" :checked="radio === '3' ? true : false" value="3"></radio>
-              </view>
-              <view class="cu-form-group">
-                <view class="title">4号口罩</view>
-                <radio :class="radio === '4' ? 'checked' : ''" :checked="radio === '4' ? true : false" value="4"></radio>
-              </view>
-              <view class="cu-form-group">
-                <view class="title">5号口罩</view>
-                <radio :class="radio === '5' ? 'checked' : ''" :checked="radio === '5' ? true : false" value="5"></radio>
-              </view>
-              <view class="cu-form-group">
-                <view class="title">6号口罩</view>
-                <radio :class="radio === '6' ? 'checked' : ''" :checked="radio === '6' ? true : false" value="6"></radio>
-              </view>
-              <view class="cu-form-group">
-                <view class="title">7号口罩</view>
-                <radio :class="radio === '7' ? 'checked' : ''" :checked="radio === '7' ? true : false" value="7"></radio>
-              </view>
-              <view class="cu-form-group">
-                <view class="title">8号口罩</view>
-                <radio :class="radio === '8' ? 'checked' : ''" :checked="radio === '8' ? true : false" value="8"></radio>
-              </view>
-            </radio-group>
-            <button class="cu-btn round shadow green">重新变身</button>
-          </view>
+          </view> -->
         </view>
       </view>
     </view>
@@ -137,34 +179,41 @@ export default {
       modalName: null,
       CustomBar: this.CustomBar,
       drawList: [{ title: "什么?不满意?换个姿势?" }, { title: "戴上口罩" }],
-      willAnimate: false,
-      radio: '1'
+      radio: "1",
+      activeName: '',
+      testApi: true,
+      beautifyNum: 0
     };
   },
   onLoad(data) {
     const { img } = data;
     this.loadedImgUrl = img;
     const that = this;
-    var pages = getCurrentPages(); //当前页面栈
     // 骚操作  加 .$vm，小程序里面beforePage.changeData()可以使用，但是app上需要用beforePage.$vm.changeData()；
+    var pages = getCurrentPages(); //当前页面栈
     // changeData()为父页面的方法，也就是上一页的方法。
     if (pages.length > 1) {
       var beforePage = pages[pages.length - 2]; //获取上一个页面实例对象
       beforePage.$vm.$refs.menu.onClickAdd(); //触发父页面中的方法change()
     }
+    // if (this.isDebugger) {
+    //   uni.showToast({
+    //     title: "您正处在管理员模式",
+    //     icon: "none",
+    //     duration: 3000,
+    //   });
+    //   this.changeDebugger(false);
+    //   return;
+    // }
     let isLegal = this.checkImgSec(img);
     if (isLegal) {
-      this.upLoadImgToOss(img);
-    }
-  },
-  computed: {
-    showAnimation: function() {
-      if(this.modalName === 'DrawerModalR') {
-        return this.willAnimate
-      } else {
-        // 隐藏modal后移除动画类名
-        return false
-      }
+      this.upLoadImgToOss(img).then((filename) => {
+        console.log('filename', filename)
+        this.beautifyImg(filename)
+      }).catch(err => {
+        // console.log(err)
+        // 此处如果不用catch或者then第二个参数捕获,则控制台会报错Uncaught (in promise)
+      })
     }
   },
 
@@ -178,31 +227,33 @@ export default {
     //   }).exec()
     // },
     // 切换口罩按钮
+    onChange(event) {
+      this.activeName = event.detail
+    },
     RadioChange(e) {
-      this.radio = e.detail.value
+      this.radio = e.detail.value;
     },
-    wearMask() {
-      this.willAnimate = true;
-      // this.beautifyImg(this.filename);
-    },
-    onItemClick(index) {
-      switch (index) {
-        case 0:
-          break;
-        case 1:
-          // 戴口罩
-          this.wearMask();
-          break;
-        default:
-          break;
+    async wearMask() {
+      var that = this
+      if(this.beautifyNum >= 3) {
+        return uni.showToast({
+          title: '您今天的次数已超上限',
+          icon: 'none'
+        })
       }
+      uni.showLoading({
+        title: '正在拼命绘画',
+        mask: true
+      })
+      let mask_id = parseInt(this.radio)   // str ===> +
+      await this.beautifyImg(this.filename, mask_id)
+      uni.hideLoading()
     },
     clickDot() {
       this.modalName = "DrawerModalR";
     },
     hideModal() {
       this.modalName = null;
-      this.willAnimate = false
     },
     // 获取用户授权
     weAuthCheck(type = "writePhotosAlbum") {
@@ -268,37 +319,55 @@ export default {
     },
     upLoadImgToOss(img) {
       var that = this;
-      uni.uploadFile({
-        url: "https://www.qdovo.com/api/upload",
-        filePath: img,
-        name: "file",
-        success: (uploadFileRes) => {
-          const { statusCode, errMsg, data } = uploadFileRes;
-          console.log(uploadFileRes);
-          if (statusCode === 200) {
-            let { status, msg, data: imgUrl } = JSON.parse(data);
-            if (status === 0) {
-              let filename = imgUrl.split("/").slice(-1)[0];
-              that.filename = filename;
-              // 美化图片
-              that.beautifyImg(filename);
-              // that.urlTobase64(imgUrl).then((imgBase64Res) => {
-              //   // 转码, 已在服务器根据filename匹配文件转base64,此处无需处理
-              //   // that.imgBase64 = imgBase64Res
-              // });
+      return new Promise(function(resolve, reject) {
+        uni.uploadFile({
+          url: that.testApi ? 'http://127.0.0.1:3000/api/upload' : "https://www.qdovo.com/api/upload",
+          filePath: img,
+          name: "file",
+          success: (uploadFileRes) => {
+            console.log(uploadFileRes)
+            const { statusCode, errMsg, data } = uploadFileRes;
+            if (statusCode === 200) {
+              let { status, msg, data: imgUrl } = JSON.parse(data);
+              if (status === 0) {
+                let filename = imgUrl.split("/").slice(-1)[0];
+                that.filename = filename;
+                resolve(filename);
+                // 美化图片
+                // that.beautifyImg(filename);
+                // that.urlTobase64(imgUrl).then((imgBase64Res) => {
+                //   // 转码, 已在服务器根据filename匹配文件转base64,此处无需处理
+                //   // that.imgBase64 = imgBase64Res
+                // });
+              } else {
+                uni.showToast({
+                  title: msg,
+                  icon: "none"
+                })
+                reject({
+                  errMsg: msg
+                });
+              }
+            } else {
+              uni.showToast({
+                title: errMsg,
+                icon: "none"
+              });
+              reject({
+                errMsg
+              });
             }
-          } else {
-            // TODO: 换toast
+          },
+          fail: (err) => {
             uni.showToast({
-              title: errMsg,
+              title: err.errMsg,
+              icon: "none",
+              duration: 3000,
             });
+            // 上传图片到阿里云失败时标志位结束
+            that.hasBack = true;
           }
-        },
-        fail: (err) => {
-          uni.showToast({
-            title: err.errMsg,
-          });
-        },
+        });
       });
     },
     // 保存图片到本地
@@ -315,7 +384,6 @@ export default {
       wx.saveImageToPhotosAlbum({
         filePath: filePath,
         success: function(res) {
-          console.log(res);
           // uni.showToast({
           //   title: "保存成功",
           // });
@@ -326,6 +394,7 @@ export default {
           if (!err.errMsg.includes("cancel")) {
             uni.showToast({
               title: errMsg,
+              icon: "none",
             });
           }
         },
@@ -348,53 +417,70 @@ export default {
           that.beautifiedImgTempUrl = filePath;
         },
         fail: (err) => {
-          console.log(err);
           // hide loading
           uni.showToast({
             title: err.errMsg,
+            icon: "none",
           });
         },
       });
     },
-    beautifyImg(filename, ifWearMask) {
-      if (!filename) {
-        uni.showToast({
-          title: "请选择照片",
-        });
-        return;
-      }
-      var that = this;
-      wx.request({
-        url: "https://www.qdovo.com/api/beautify",
-        method: "POST",
-        data: {
-          filename: filename || that.filename,
-          ifWearMask,
-        },
-        success: function(res) {
-          let { statusCode, errMsg, data } = res;
-          if (statusCode === 200) {
-            let { status, msg, data: beautifiedImgBase64 } = data;
-            if (status === 0) {
-              that.beautifiedImgBase64 = beautifiedImgBase64;
-              console.log("show dialog");
-              that.showDialog = true;
-              that.hasBack = true;
-              // base64转本地路径
-              that.base64ToTempUrl(beautifiedImgBase64);
-            }
-          } else {
-            uni.showToast({
-              title: errMsg,
-            });
-          }
-        },
-        fail: (err) => {
-          uni.showToast({
-            title: err.errMsg,
-          });
-        },
-      });
+    beautifyImg(filename, mask_id) {
+      // 调试代码
+      var that = this
+      that.beautifyNum++
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          resolve()
+        }, 1000);
+      })
+
+      // --- 分界线
+
+      // if (!filename) {
+      //   uni.showToast({
+      //     title: "请选择照片",
+      //     icon: "none",
+      //   });
+      //   return;
+      // }
+      // var that = this;
+      // wx.request({
+      //   url:  that.testApi ? "http://127.0.0.1:3000/api/beautify" : "https://www.qdovo.com/api/beautify",
+      //   method: "POST",
+      //   data: {
+      //     filename: filename || that.filename,
+      //     mask_id: mask_id || null,
+      //   },
+      //   success: function(res) {
+      //     let { statusCode, errMsg, data } = res;
+      //     if (statusCode === 200) {
+      //       let { status, msg, data: beautifiedImgBase64 } = data;
+      //       if (status === 0) {
+      //         that.beautifiedImgBase64 = beautifiedImgBase64;
+      //         that.showDialog = true;
+      //         that.beautifyNum++
+      //         
+      //         // base64转本地路径
+      //         that.base64ToTempUrl(beautifiedImgBase64);
+      //       }
+      //     } else {
+      //       uni.showToast({
+      //         title: errMsg,
+      //         icon: "none",
+      //       });
+      //     }
+      //   },
+      //   fail: (err) => {
+      //     uni.showToast({
+      //       title: err.errMsg,
+      //       icon: "none",
+      //     });
+      //   },
+      //   complete: () => {
+      //     that.hasBack = true;
+      //   }
+      // });
     },
     backHome(e) {
       if (!this.hasBack) return;

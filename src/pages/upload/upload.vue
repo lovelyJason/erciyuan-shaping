@@ -1,19 +1,33 @@
 <template>
-  <view class="upload-wrapper">
+  <view @click="handlePageClick" class="upload-wrapper">
     <my-menu ref="menu" @openAlbum="openAlbum" @openCamera="openCamera"></my-menu>
   </view>
 </template>
 
 <script>
-import Bus from "@/eventbus/index.js";
+// import Bus from "@/eventbus/index.js";
 
 export default {
   data() {
     return {
-      imgUrl: ''
+      imgUrl: '',
+      count: 0
     };
   },
+  onShow() {
+    // console.log(this.isDebugger)
+    // this.changeDebugger(true)
+    // console.log(this.isDebugger)
+    // console.log('upload show')
+  },
+  onHide() {
+    // 因为此处相册选完之后会停留在当前页,onShow和onHide都会执行一次
+    // console.log('upload hide')
+  },
   methods: {
+    handlePageClick() {
+      this.count ++
+    },
     openAlbum() {
       var that = this
       uni.chooseImage({
@@ -22,21 +36,24 @@ export default {
         success(res) {
           // tempFilePath可以作为img标签的src属性显示图片
           const tempFilePaths = res.tempFilePaths;
-          // that.imgUrl = tempFilePaths[0];
           // setTimeout(() => {
           //   // 此处的bug在于下一个页面无法接受到数据,定时器可解决
           //   uni.$emit('load',{ imgUrl: tempFilePaths[0] })
           // }, 500)
           // that.$refs.menu.onClickAdd()
           // TODO: canvas压缩图片
+          if(that.count >= 12) {
+            that.count = 0
+            that.changeDebugger(true)
+          }
+          console.log(that.isDebugger)
           uni.navigateTo({
-            url: `/pages/result/result?img=${tempFilePaths[0]}`
+            url: `/pages/result/result?img=${tempFilePaths[0]}&count=${that.count}`
           });
         }
       });
     },
     openCamera() {
-      console.log(11)
       var that = this
       uni.chooseImage({
         count: 1,
@@ -45,7 +62,6 @@ export default {
         success(res) {
           // tempFilePath可以作为img标签的src属性显示图片
           const tempFilePaths = res.tempFilePaths;
-          // that.imgUrl = tempFilePaths[0];
           uni.navigateTo({
             url: `/pages/result/result?img=${tempFilePaths[0]}`
           });

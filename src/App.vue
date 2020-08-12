@@ -60,7 +60,12 @@ export default {
         // #ifdef MP-ALIPAY
         Vue.prototype.StatusBar = e.statusBarHeight;
         Vue.prototype.CustomBar = e.statusBarHeight + e.titleBarHeight;
-        // #endif
+				// #endif
+				
+				Vue.prototype.isDebugger = false
+				Vue.prototype.changeDebugger = function(flag) {
+					Vue.prototype.isDebugger = flag
+				}
       },
     });
   },
