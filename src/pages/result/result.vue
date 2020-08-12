@@ -9,7 +9,7 @@
       <view :class="{ scan: true, 'scan-animation': !hasBack }"></view>
     </view>
     <view v-if="!hasBack" class="loading-text">正在检测中...</view>
-    <view v-if="isIllegal" class="not-found-text">抱歉,暂无结果😘</view>
+    <view v-else class="not-found-text">{{ isIllegal ? '您的图片含有违规内容,请停止操作' : '抱歉,暂无结果😘' }}</view>
     <view
       class="not-found-img"
       :style="{
@@ -58,8 +58,10 @@
       >
         <view class="cu-list menu text-left">
           <van-collapse accordion :value="activeName" @change="onChange">
-            <van-collapse-item title="什么?不满意?换个姿势?" name="1" >
-                <button disabled class="cu-btn round shadow line-red">正在开放中</button>
+            <van-collapse-item title="什么?不满意?换个姿势?" name="1">
+              <button disabled class="cu-btn round shadow line-red">
+                正在开放中
+              </button>
             </van-collapse-item>
             <van-collapse-item title="戴上口罩试试" name="2">
               <!-- 戴口罩的8种编码 -->
@@ -135,9 +137,17 @@
                     ></radio>
                   </view>
                 </radio-group>
-                <button :disabled="beautifyNum >= 3" @click="wearMask" class="cu-btn round shadow line-green">戴口罩</button>
+                <button
+                  :disabled="beautifyNum >= 3"
+                  @click="wearMask"
+                  class="cu-btn round shadow line-green"
+                >
+                  戴口罩
+                </button>
                 <view>
-                  <text v-if="beautifyNum >= 3" style="color: #dbdee2;">您今天次数已超上限</text>
+                  <text v-if="beautifyNum >= 3" style="color: #dbdee2;"
+                    >您今天次数已超上限</text
+                  >
                 </view>
               </view>
             </van-collapse-item>
@@ -180,9 +190,9 @@ export default {
       CustomBar: this.CustomBar,
       drawList: [{ title: "什么?不满意?换个姿势?" }, { title: "戴上口罩" }],
       radio: "1",
-      activeName: '',
+      activeName: "",
       testApi: false,
-      beautifyNum: 0
+      beautifyNum: 0,
     };
   },
   onLoad(data) {
@@ -205,16 +215,22 @@ export default {
     //   this.changeDebugger(false);
     //   return;
     // }
-    let isLegal = this.checkImgSec(img);
-    if (isLegal) {
-      this.upLoadImgToOss(img).then((filename) => {
-        console.log('filename', filename)
-        this.beautifyImg(filename)
-      }).catch(err => {
-        // console.log(err)
-        // 此处如果不用catch或者then第二个参数捕获,则控制台会报错Uncaught (in promise)
+    this.checkImgSec(img)
+      .then(() => {
+        // this.upLoadImgToOss(img)
+        //   .then((filename) => {
+        //     console.log("filename", filename);
+        //     this.beautifyImg(filename);
+        //   })
+        //   .catch((err) => {
+        //     // console.log(err)
+        //     // 此处如果不用catch或者then第二个参数捕获,则控制台会报错Uncaught (in promise)
+        //   });
       })
-    }
+      .catch((err) => {
+        console.log(err)
+        throw new Error(err);
+      });
   },
 
   methods: {
@@ -228,26 +244,26 @@ export default {
     // },
     // 切换口罩按钮
     onChange(event) {
-      this.activeName = event.detail
+      this.activeName = event.detail;
     },
     RadioChange(e) {
       this.radio = e.detail.value;
     },
     async wearMask() {
-      var that = this
-      if(this.beautifyNum >= 3) {
+      var that = this;
+      if (this.beautifyNum >= 3) {
         return uni.showToast({
-          title: '您今天的次数已超上限',
-          icon: 'none'
-        })
+          title: "您今天的次数已超上限",
+          icon: "none",
+        });
       }
       uni.showLoading({
-        title: '正在拼命绘画',
-        mask: true
-      })
-      let mask_id = parseInt(this.radio)   // str ===> +
-      await this.beautifyImg(this.filename, mask_id)
-      uni.hideLoading()
+        title: "正在拼命绘画",
+        mask: true,
+      });
+      let mask_id = parseInt(this.radio); // str ===> +
+      await this.beautifyImg(this.filename, mask_id);
+      uni.hideLoading();
     },
     clickDot() {
       this.modalName = "DrawerModalR";
@@ -296,9 +312,40 @@ export default {
       return resGetting;
     },
     // 检测图片是否涉黄
-    checkImgSec() {
-      // 某某操作TODO:
-      return true;
+    checkImgSec(img) {
+      // 某某操作
+      var that = this
+      return new Promise((resolve, reject) => {
+        wx.getFileSystemManager().readFile({
+          filePath: img,
+          success: (buffer) => {
+            wx.cloud.init()
+            wx.cloud
+              .callFunction({
+                name: "checkImg",
+                data: {
+                  value: buffer.data,
+                },
+              })
+              .then((imgRes) => {
+                console.log(imgRes)
+                if (imgRes.result.errCode == 87014) {
+                  wx.showToast({
+                    title: "图片含有违法违规内容",
+                    icon: "none",
+                  });
+                  that.isIllegal = true   // 标记为非法黄图等
+                  that.hasBack = true
+                  return;
+                }
+              });
+            resolve(true);
+          },
+          fail: (err) => {
+            reject(false);
+          },
+        });
+      });
     },
     // 暂时用不到,服务端转base64
     urlTobase64(imgUrl) {
@@ -320,12 +367,16 @@ export default {
     upLoadImgToOss(img) {
       var that = this;
       return new Promise(function(resolve, reject) {
+        // 如果做云存储,使用wx.cloud.uploadFile,拿fileID可以在云端downloadFile buffer
+        // 或者使用getFileSystemManager将tempUrl转化为buffer
         uni.uploadFile({
-          url: that.testApi ? 'http://127.0.0.1:3000/api/upload' : "https://www.qdovo.com/api/upload",
+          url: that.testApi
+            ? "http://127.0.0.1:3000/api/upload"
+            : "https://www.qdovo.com/api/upload",
           filePath: img,
           name: "file",
           success: (uploadFileRes) => {
-            console.log(uploadFileRes)
+            console.log(uploadFileRes);
             const { statusCode, errMsg, data } = uploadFileRes;
             if (statusCode === 200) {
               let { status, msg, data: imgUrl } = JSON.parse(data);
@@ -342,19 +393,19 @@ export default {
               } else {
                 uni.showToast({
                   title: msg,
-                  icon: "none"
-                })
+                  icon: "none",
+                });
                 reject({
-                  errMsg: msg
+                  errMsg: msg,
                 });
               }
             } else {
               uni.showToast({
                 title: errMsg,
-                icon: "none"
+                icon: "none",
               });
               reject({
-                errMsg
+                errMsg,
               });
             }
           },
@@ -366,7 +417,7 @@ export default {
             });
             // 上传图片到阿里云失败时标志位结束
             that.hasBack = true;
-          }
+          },
         });
       });
     },
@@ -408,7 +459,8 @@ export default {
       return new Promise((resolve, reject) => {
         let fm = wx.getFileSystemManager();
         let startIndex = base64.indexOf("base64,") + 7;
-        let filePath = wx.env.USER_DATA_PATH + `/${that.filename || "test.png"}`;
+        let filePath =
+          wx.env.USER_DATA_PATH + `/${that.filename || "test.png"}`;
         fm.writeFile({
           filePath: filePath,
           encoding: "base64",
@@ -416,20 +468,20 @@ export default {
           success: (res) => {
             // 存储最终tempUrl供保存调用
             that.beautifiedImgTempUrl = filePath;
-            resolve(filePath)
+            resolve(filePath);
           },
           fail: (err) => {
             // hide loading
             reject({
-              errMsg: 'to tempUrl fail'
-            })
+              errMsg: "to tempUrl fail",
+            });
             uni.showToast({
               title: err.errMsg,
               icon: "none",
             });
           },
         });
-      })
+      });
     },
     beautifyImg(filename, mask_id) {
       // 调试代码
@@ -443,7 +495,7 @@ export default {
 
       // --- 分界线
 
-      var that = this
+      var that = this;
       return new Promise((resolve, reject) => {
         if (!filename) {
           uni.showToast({
@@ -454,7 +506,9 @@ export default {
         }
         var that = this;
         wx.request({
-          url:  that.testApi ? "http://127.0.0.1:3000/api/beautify" : "https://www.qdovo.com/api/beautify",
+          url: that.testApi
+            ? "http://127.0.0.1:3000/api/beautify"
+            : "https://www.qdovo.com/api/beautify",
           method: "POST",
           data: {
             filename: filename || that.filename,
@@ -467,17 +521,17 @@ export default {
               if (status === 0) {
                 that.beautifiedImgBase64 = beautifiedImgBase64;
                 that.showDialog = true;
-                that.beautifyNum++
+                that.beautifyNum++;
                 // base64转本地路径
                 that.base64ToTempUrl(beautifiedImgBase64);
-                resolve(true)
+                resolve(true);
               }
             } else {
               uni.showToast({
                 title: errMsg,
                 icon: "none",
               });
-              reject(false)
+              reject(false);
             }
           },
           fail: (err) => {
@@ -485,14 +539,13 @@ export default {
               title: err.errMsg,
               icon: "none",
             });
-            reject(false)
+            reject(false);
           },
           complete: () => {
             that.hasBack = true;
-          }
+          },
         });
-      })
-
+      });
     },
     backHome(e) {
       if (!this.hasBack) return;
