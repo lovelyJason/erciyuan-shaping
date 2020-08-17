@@ -6,10 +6,12 @@
         class="circle-area"
         :style="{ 'background-image': `url(${loadedImgUrl})` }"
       ></view>
+      <!-- true = 上传图片失败 || 黄图  || 动漫处理complete后 -->
       <view :class="{ scan: true, 'scan-animation': !hasBack }"></view>
     </view>
     <view v-if="!hasBack" class="loading-text">正在检测中...</view>
-    <view v-else class="not-found-text">{{ isIllegal ? '您的图片含有违规内容,请停止操作' : '抱歉,暂无结果😘' }}</view>
+    <view v-if="isIllegal" class="not-found-text">您的图片含有违规内容,请停止操作</view>
+    <view v-if="uploadFlag" class="not-found-text">抱歉,暂无结果😘</view>
     <view
       class="not-found-img"
       :style="{
@@ -152,16 +154,6 @@
               </view>
             </van-collapse-item>
           </van-collapse>
-
-          <!-- <view
-            class="cu-item arrow"
-            v-for="(item, index) in drawList"
-            :key="index"
-          >
-            <view class="content">
-              <view @click="onItemClick(index)">{{ item.title }}</view>
-            </view>
-          </view> -->
         </view>
       </view>
     </view>
@@ -193,6 +185,8 @@ export default {
       activeName: "",
       testApi: false,
       beautifyNum: 0,
+      checkImgFlag: false,
+      uploadFlag: false
     };
   },
   onLoad(data) {
@@ -206,26 +200,17 @@ export default {
       var beforePage = pages[pages.length - 2]; //获取上一个页面实例对象
       beforePage.$vm.$refs.menu.onClickAdd(); //触发父页面中的方法change()
     }
-    // if (this.isDebugger) {
-    //   uni.showToast({
-    //     title: "您正处在管理员模式",
-    //     icon: "none",
-    //     duration: 3000,
-    //   });
-    //   this.changeDebugger(false);
-    //   return;
-    // }
     this.checkImgSec(img)
       .then(() => {
-        // this.upLoadImgToOss(img)
-        //   .then((filename) => {
-        //     console.log("filename", filename);
-        //     this.beautifyImg(filename);
-        //   })
-        //   .catch((err) => {
-        //     // console.log(err)
-        //     // 此处如果不用catch或者then第二个参数捕获,则控制台会报错Uncaught (in promise)
-        //   });
+        this.upLoadImgToOss(img)
+          .then((filename) => {
+            console.log("filename", filename);
+            this.beautifyImg(filename);
+          })
+          .catch((err) => {
+            // console.log(err)
+            // 此处如果不用catch或者then第二个参数捕获,则控制台会报错Uncaught (in promise)
+          });
       })
       .catch((err) => {
         console.log(err)
@@ -256,6 +241,12 @@ export default {
           title: "您今天的次数已超上限",
           icon: "none",
         });
+      }
+      if(this.isIllegal) {
+        return uni.showToast({
+          title: '您的图片含有违规内容,请停止操作',
+          icon: 'none'
+        })
       }
       uni.showLoading({
         title: "正在拼命绘画",
@@ -328,22 +319,27 @@ export default {
                 },
               })
               .then((imgRes) => {
-                console.log(imgRes)
                 if (imgRes.result.errCode == 87014) {
                   wx.showToast({
                     title: "图片含有违法违规内容",
                     icon: "none",
                   });
                   that.isIllegal = true   // 标记为非法黄图等
-                  that.hasBack = true
-                  return;
+                  this.hasBack = true
+                  reject(false);
+                } else {
+                  resolve(true)
                 }
+              }).catch(err => {
+                reject(false)
               });
-            resolve(true);
           },
           fail: (err) => {
             reject(false);
           },
+          complete: () => {
+            that.checkImgFlag = true
+          }
         });
       });
     },
@@ -417,6 +413,7 @@ export default {
             });
             // 上传图片到阿里云失败时标志位结束
             that.hasBack = true;
+            that.uploadFlag = true
           },
         });
       });
@@ -484,14 +481,6 @@ export default {
       });
     },
     beautifyImg(filename, mask_id) {
-      // 调试代码
-      // var that = this
-      // that.beautifyNum++
-      // return new Promise((resolve, reject) => {
-      //   setTimeout(() => {
-      //     resolve()
-      //   }, 1000);
-      // })
 
       // --- 分界线
 
