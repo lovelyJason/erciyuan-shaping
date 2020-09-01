@@ -4,13 +4,18 @@
       <!-- 初始背景图为空,请求500 -->
       <view
         class="circle-area"
-        :style="{ 'background-image': `url(${loadedImgUrl})` }"
+        :style="{
+          'background-image': `url(${loadedImgUrl})`,
+          'background-position': isIllegal ? 'top center' : null,
+        }"
       ></view>
       <!-- true = 上传图片失败 || 黄图  || 动漫处理complete后 -->
       <view :class="{ scan: true, 'scan-animation': !hasBack }"></view>
     </view>
-    <view v-if="!hasBack" class="loading-text">正在检测中...</view>
-    <view v-if="isIllegal" class="not-found-text">您的图片含有违规内容,请停止操作</view>
+    <view v-if="!hasBack" class="loading-text">正在检测中,请您稍等...</view>
+    <view v-if="isIllegal" class="not-found-text"
+      >您的图片含有违规内容,请停止操作</view
+    >
     <view v-if="uploadFlag" class="not-found-text">抱歉,暂无结果😘</view>
     <view
       class="not-found-img"
@@ -36,127 +41,154 @@
     >
       <image :src="beautifiedImgBase64" mode="widthFix"></image>
     </van-dialog>
-    <view
-      class="suspended-ball movable"
-      id="moveDiv"
-      @mousedown="utils.down"
-      @touchstart="utils.down"
-      @mousemove="utils.move"
-      @touchmove="utils.move"
-      @mouseup="utils.end"
-      @touchend="utils.end"
-    >
-      <view @click="clickDot" id="inner"></view>
-    </view>
-    <view
-      class="cu-modal drawer-modal justify-end"
-      :class="modalName == 'DrawerModalR' ? 'show' : ''"
-      @tap="hideModal"
-    >
+    <template v-if="apiType == 1">
       <view
-        class="cu-dialog basis-lg"
-        @tap.stop=""
-        :style="[{ top: 0 + 'px', height: 'calc(100vh' + 'px)' }]"
+        class="suspended-ball movable"
+        id="moveDiv"
+        @mousedown="utils.down"
+        @touchstart="utils.down"
+        @mousemove="utils.move"
+        @touchmove="utils.move"
+        @mouseup="utils.end"
+        @touchend="utils.end"
       >
-        <view class="cu-list menu text-left">
-          <van-collapse accordion :value="activeName" @change="onChange">
-            <van-collapse-item title="什么?不满意?换个姿势?" name="1">
-              <button disabled class="cu-btn round shadow line-red">
-                正在开放中
-              </button>
-            </van-collapse-item>
-            <van-collapse-item title="戴上口罩试试" name="2">
-              <!-- 戴口罩的8种编码 -->
-              <view
-                :class="{
-                  'mask-menus': true,
-                  /*'animation-slide-bottom': showAnimation,*/
-                }"
-              >
-                <radio-group class="block" @change="RadioChange">
-                  <view class="cu-form-group">
-                    <view class="title">风格1</view>
-                    <radio
-                      :class="radio === '1' ? 'checked' : ''"
-                      :checked="radio === '1' ? true : false"
-                      value="1"
-                    ></radio>
-                  </view>
-                  <view class="cu-form-group">
-                    <view class="title">风格2</view>
-                    <radio
-                      :class="radio === '2' ? 'checked' : ''"
-                      :checked="radio === '2' ? true : false"
-                      value="2"
-                    ></radio>
-                  </view>
-                  <view class="cu-form-group">
-                    <view class="title">风格3</view>
-                    <radio
-                      :class="radio === '3' ? 'checked' : ''"
-                      :checked="radio === '3' ? true : false"
-                      value="3"
-                    ></radio>
-                  </view>
-                  <view class="cu-form-group">
-                    <view class="title">风格4</view>
-                    <radio
-                      :class="radio === '4' ? 'checked' : ''"
-                      :checked="radio === '4' ? true : false"
-                      value="4"
-                    ></radio>
-                  </view>
-                  <view class="cu-form-group">
-                    <view class="title">风格5</view>
-                    <radio
-                      :class="radio === '5' ? 'checked' : ''"
-                      :checked="radio === '5' ? true : false"
-                      value="5"
-                    ></radio>
-                  </view>
-                  <view class="cu-form-group">
-                    <view class="title">风格6</view>
-                    <radio
-                      :class="radio === '6' ? 'checked' : ''"
-                      :checked="radio === '6' ? true : false"
-                      value="6"
-                    ></radio>
-                  </view>
-                  <view class="cu-form-group">
-                    <view class="title">风格7</view>
-                    <radio
-                      :class="radio === '7' ? 'checked' : ''"
-                      :checked="radio === '7' ? true : false"
-                      value="7"
-                    ></radio>
-                  </view>
-                  <view class="cu-form-group">
-                    <view class="title">风格8</view>
-                    <radio
-                      :class="radio === '8' ? 'checked' : ''"
-                      :checked="radio === '8' ? true : false"
-                      value="8"
-                    ></radio>
-                  </view>
-                </radio-group>
-                <button
-                  :disabled="beautifyNum >= 3"
-                  @click="wearMask"
-                  class="cu-btn round shadow line-green"
-                >
-                  戴口罩
+        <view @click="clickDot" id="inner"></view>
+      </view>
+      <view
+        class="cu-modal drawer-modal justify-end"
+        :class="modalName == 'DrawerModalR' ? 'show' : ''"
+        @tap="hideModal"
+      >
+        <view
+          class="cu-dialog basis-lg"
+          @tap.stop=""
+          :style="[{ top: 0 + 'px', height: 'calc(100vh' + 'px)' }]"
+        >
+          <view class="cu-list menu text-left">
+            <van-collapse accordion :value="activeName" @change="onChange">
+              <van-collapse-item title="什么?不满意?换个姿势?" name="1">
+                <button @click="faceCartoonByTencent" class="cu-btn round shadow line-red">
+                  正在开放中
                 </button>
-                <view>
-                  <text v-if="beautifyNum >= 3" style="color: #dbdee2;"
-                    >您今天次数已超上限</text
+              </van-collapse-item>
+              <van-collapse-item title="戴上口罩试试" name="2">
+                <!-- 戴口罩的8种编码 -->
+                <view
+                  :class="{
+                    'mask-menus': true,
+                    /*'animation-slide-bottom': showAnimation,*/
+                  }"
+                >
+                  <radio-group class="block" @change="RadioChange">
+                    <view class="cu-form-group">
+                      <view class="title">风格1</view>
+                      <radio
+                        :class="radio === '1' ? 'checked' : ''"
+                        :checked="radio === '1' ? true : false"
+                        value="1"
+                      ></radio>
+                    </view>
+                    <view class="cu-form-group">
+                      <view class="title">风格2</view>
+                      <radio
+                        :class="radio === '2' ? 'checked' : ''"
+                        :checked="radio === '2' ? true : false"
+                        value="2"
+                      ></radio>
+                    </view>
+                    <view class="cu-form-group">
+                      <view class="title">风格3</view>
+                      <radio
+                        :class="radio === '3' ? 'checked' : ''"
+                        :checked="radio === '3' ? true : false"
+                        value="3"
+                      ></radio>
+                    </view>
+                    <view class="cu-form-group">
+                      <view class="title">风格4</view>
+                      <radio
+                        :class="radio === '4' ? 'checked' : ''"
+                        :checked="radio === '4' ? true : false"
+                        value="4"
+                      ></radio>
+                    </view>
+                    <view class="cu-form-group">
+                      <view class="title">风格5</view>
+                      <radio
+                        :class="radio === '5' ? 'checked' : ''"
+                        :checked="radio === '5' ? true : false"
+                        value="5"
+                      ></radio>
+                    </view>
+                    <view class="cu-form-group">
+                      <view class="title">风格6</view>
+                      <radio
+                        :class="radio === '6' ? 'checked' : ''"
+                        :checked="radio === '6' ? true : false"
+                        value="6"
+                      ></radio>
+                    </view>
+                    <view class="cu-form-group">
+                      <view class="title">风格7</view>
+                      <radio
+                        :class="radio === '7' ? 'checked' : ''"
+                        :checked="radio === '7' ? true : false"
+                        value="7"
+                      ></radio>
+                    </view>
+                    <view class="cu-form-group">
+                      <view class="title">风格8</view>
+                      <radio
+                        :class="radio === '8' ? 'checked' : ''"
+                        :checked="radio === '8' ? true : false"
+                        value="8"
+                      ></radio>
+                    </view>
+                  </radio-group>
+                  <button
+                    :disabled="beautifyNum >= 3"
+                    @click="wearMask"
+                    class="cu-btn round shadow line-green"
                   >
+                    戴口罩
+                  </button>
+                  <view>
+                    <text v-if="beautifyNum >= 3" style="color: #dbdee2;"
+                      >您今天次数已超上限</text
+                    >
+                  </view>
                 </view>
-              </view>
-            </van-collapse-item>
-          </van-collapse>
+              </van-collapse-item>
+            </van-collapse>
+          </view>
         </view>
       </view>
-    </view>
+    </template>
+    <canvas
+      canvas-id="canvas"
+      :style="{
+        width: cWidth,
+        height: cHeight,
+        position: 'absolute',
+        left: -1000 + 'px',
+        top: -1000 + 'px',
+      }"
+    ></canvas>
+    <van-action-sheet v-if="apiType == 2" :show="showActionSheet" description="请选择年龄" class="change-age-action-sheet" cancel-text="确认" @cancel="confirmAge">
+      <view class="slider-row">
+        <text class="label">变年轻</text>
+        <van-slider
+          class="my-slider"
+          bar-height="4px"
+          v-model="currentAge"
+          use-button-slot
+          @change="changeAge"
+        >
+          <view class="custom-button" slot="button">{{ currentAge }}</view>
+        </van-slider>
+        <text class="label">变老</text>
+      </view>
+    </van-action-sheet>
   </view>
 </template>
 
@@ -183,16 +215,27 @@ export default {
       drawList: [{ title: "什么?不满意?换个姿势?" }, { title: "戴上口罩" }],
       radio: "1",
       activeName: "",
-      testApi: false,
+      testApi: false, 
       beautifyNum: 0,
       checkImgFlag: false,
-      uploadFlag: false
+      uploadFlag: false,
+      cWidth: 0,
+      cHeight: 0,
+      imgType: "png",
+      currentAge: 18,
+      ifChangeAge: false,
+      apiType: 1,
+      closeActionSheet: false,
+      cartoornRoute2: 'beautify',
+      cartoornRoute1: 'face-cartoon'    // 默认使用腾讯
     };
   },
-  onLoad(data) {
-    const { img } = data;
-    this.loadedImgUrl = img;
+  async onLoad(data) {
     const that = this;
+    const { img, apiType } = data; // tempUrl
+    const imgType = img.split(".").slice(-1)[0];
+    that.loadedImgUrl = img;
+    that.apiType = apiType
     // 骚操作  加 .$vm，小程序里面beforePage.changeData()可以使用，但是app上需要用beforePage.$vm.changeData()；
     var pages = getCurrentPages(); //当前页面栈
     // changeData()为父页面的方法，也就是上一页的方法。
@@ -200,33 +243,71 @@ export default {
       var beforePage = pages[pages.length - 2]; //获取上一个页面实例对象
       beforePage.$vm.$refs.menu.onClickAdd(); //触发父页面中的方法change()
     }
-    this.checkImgSec(img)
-      .then(() => {
-        this.upLoadImgToOss(img)
-          .then((filename) => {
-            console.log("filename", filename);
-            this.beautifyImg(filename);
-          })
-          .catch((err) => {
-            // console.log(err)
-            // 此处如果不用catch或者then第二个参数捕获,则控制台会报错Uncaught (in promise)
-          });
-      })
-      .catch((err) => {
-        console.log(err)
-        throw new Error(err);
-      });
+    // check之前使用canvas压缩先,否则可能失败
+    // 小程序图片压缩的方法
+    /*
+    1. 官方接口wx.compressImage
+    2. canvas重绘
+    3. 安装第三方图片压缩包
+    */
+    if(apiType == 1) {
+      this.changePicFromTempUrl(img, 1)
+    } else {
+      that.hasBack = true
+    }
   },
-
+  computed: {
+    showActionSheet: function() {
+      if(this.closeActionSheet) {
+        return false
+      } else {
+        return this.apiType == 2
+      }
+    }
+  },
   methods: {
-    // slideMenu() {
-    // 没有setStyle的api
-    //   var query = uni.createSelectorQuery()
-    //   var view = query.select('#moveDiv')
-    //   view.boundingClientRect(function(rect) {
-    //     console.log(rect)
-    //   }).exec()
-    // },
+    confirmAge() {
+      this.closeActionSheet = true
+      this.changePicFromTempUrl(this.loadedImgUrl, 2)
+    },
+    changeAge(e) {
+      this.currentAge = e.detail !== undefined ? e.detail : e.detail.value
+    },
+    /** 得到tempUrl,经过压缩,检测,上传,美化的封装
+     * @img 上传或拍照后本地临时路径
+     * 
+     */
+    async changePicFromTempUrl(img, apiType) {
+      const that = this
+      const imgType = img.split(".").slice(-1)[0];
+      that.hasBack = false
+      try {
+        let compressedImage = await that.compressImage(img);
+        console.log("压缩后图", compressedImage);
+        // that.loadedImgUrl = compressedImage;
+        let isSafe = await that.checkImgSec(compressedImage, imgType);
+        if (isSafe) {
+          let filename = await that.upLoadImgToOss(img);
+          if(apiType == 1) {
+            await that.beautifyImg(filename)
+            that.hasBack = true
+          } else {
+            await that.beautifyImgByAge(filename)
+            that.hasBack = true
+          }
+        } else {
+          that.loadedImgUrl = `https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/illegal.png`;
+          that.hasBack = true
+        }
+      } catch (error) {
+        console.log(error);
+        that.hasBack = true
+        uni.showToast({
+          icon: "none",
+          title: error.errMsg || "系统错误",
+        });
+      }
+    },
     // 切换口罩按钮
     onChange(event) {
       this.activeName = event.detail;
@@ -242,11 +323,11 @@ export default {
           icon: "none",
         });
       }
-      if(this.isIllegal) {
+      if (this.isIllegal) {
         return uni.showToast({
-          title: '您的图片含有违规内容,请停止操作',
-          icon: 'none'
-        })
+          title: "您的图片含有违规内容,请停止操作",
+          icon: "none",
+        });
       }
       uni.showLoading({
         title: "正在拼命绘画",
@@ -302,44 +383,101 @@ export default {
       });
       return resGetting;
     },
+    compressImage(img) {
+      const that = this;
+      const imgType = img.split(".").slice(-1)[0];
+      const size = 400; // 貌似大于100会失败
+      return new Promise((resolve, reject) => {
+        wx.getImageInfo({
+          src: img,
+          success: (res) => {
+            let ratio = 2;
+            let canvasWidth = res.width;
+            let canvasHeight = res.height;
+            if (canvasWidth <= size && canvasHeight <= size) {
+              resolve(img);
+            }
+            while (canvasWidth > size || canvasHeight > size) {
+              canvasWidth = Math.trunc(res.width / ratio);
+              canvasHeight = Math.trunc(res.height / ratio);
+              ratio++;
+            }
+            console.log("canvas", canvasWidth, canvasHeight);
+            that.cWidth = canvasWidth;
+            that.cHeight = canvasHeight;
+            // 绘制图形并取出图片路径
+            let ctx = wx.createCanvasContext("canvas");
+            ctx.drawImage(res.path, 0, 0, canvasWidth, canvasHeight);
+            ctx.draw(false, () => {
+              setTimeout(() => {
+                wx.canvasToTempFilePath(
+                  {
+                    canvasId: "canvas",
+                    destWidth: canvasWidth,
+                    destHeight: canvasHeight,
+                    fileType: imgType,
+                    success: (temFileRes) => {
+                      const { tempFilePath } = temFileRes;
+                      resolve(tempFilePath);
+                    },
+                    fail: (err) => {
+                      reject(err);
+                    },
+                  },
+                  that
+                );
+              }, 500);
+            });
+          },
+          fail: (err) => {
+            reject(err);
+          },
+        });
+      });
+    },
     // 检测图片是否涉黄
-    checkImgSec(img) {
+    checkImgSec(img, imgType) {
       // 某某操作
-      var that = this
+      var that = this;
+      imgType = imgType || img.split(".").slice(-1)[0];
       return new Promise((resolve, reject) => {
         wx.getFileSystemManager().readFile({
           filePath: img,
           success: (buffer) => {
-            wx.cloud.init()
+            wx.cloud.init();
             wx.cloud
               .callFunction({
                 name: "checkImg",
                 data: {
                   value: buffer.data,
+                  imgType: imgType,
                 },
               })
               .then((imgRes) => {
+                console.log("检测结果", imgRes);
                 if (imgRes.result.errCode == 87014) {
                   wx.showToast({
                     title: "图片含有违法违规内容",
                     icon: "none",
                   });
-                  that.isIllegal = true   // 标记为非法黄图等
-                  this.hasBack = true
-                  reject(false);
+                  that.isIllegal = true; // 标记为非法黄图等
+                  resolve(false);
                 } else {
-                  resolve(true)
+                  resolve(true);
                 }
-              }).catch(err => {
-                reject(false)
+              })
+              .catch((err) => {
+                // 此处-404012 polling exceed max timeout entry 错误
+                console.log("图片检测错误", err);
+                reject(err);
               });
           },
           fail: (err) => {
-            reject(false);
+            reject(err);
           },
           complete: () => {
-            that.checkImgFlag = true
-          }
+            that.checkImgFlag = true;
+          },
         });
       });
     },
@@ -372,7 +510,6 @@ export default {
           filePath: img,
           name: "file",
           success: (uploadFileRes) => {
-            console.log(uploadFileRes);
             const { statusCode, errMsg, data } = uploadFileRes;
             if (statusCode === 200) {
               let { status, msg, data: imgUrl } = JSON.parse(data);
@@ -387,33 +524,20 @@ export default {
                 //   // that.imgBase64 = imgBase64Res
                 // });
               } else {
-                uni.showToast({
-                  title: msg,
-                  icon: "none",
-                });
                 reject({
                   errMsg: msg,
                 });
               }
             } else {
-              uni.showToast({
-                title: errMsg,
-                icon: "none",
-              });
               reject({
                 errMsg,
               });
             }
           },
           fail: (err) => {
-            uni.showToast({
-              title: err.errMsg,
-              icon: "none",
-              duration: 3000,
-            });
+            reject(err);
             // 上传图片到阿里云失败时标志位结束
-            that.hasBack = true;
-            that.uploadFlag = true
+            that.uploadFlag = true;
           },
         });
       });
@@ -457,7 +581,7 @@ export default {
         let fm = wx.getFileSystemManager();
         let startIndex = base64.indexOf("base64,") + 7;
         let filePath =
-          wx.env.USER_DATA_PATH + `/${that.filename || "test.png"}`;
+          wx.env.USER_DATA_PATH + `/${that.filename || "pic.png"}`;
         fm.writeFile({
           filePath: filePath,
           encoding: "base64",
@@ -480,10 +604,8 @@ export default {
         });
       });
     },
-    beautifyImg(filename, mask_id) {
-
+    beautifyImg(filename, mask_id, route=this.cartoornRoute2) {
       // --- 分界线
-
       var that = this;
       return new Promise((resolve, reject) => {
         if (!filename) {
@@ -496,8 +618,8 @@ export default {
         var that = this;
         wx.request({
           url: that.testApi
-            ? "http://127.0.0.1:3000/api/beautify"
-            : "https://www.qdovo.com/api/beautify",
+            ? `http://127.0.0.1:3000/api/${route}`
+            : `https://www.qdovo.com/api/${route}`,
           method: "POST",
           data: {
             filename: filename || that.filename,
@@ -508,12 +630,14 @@ export default {
             if (statusCode === 200) {
               let { status, msg, data: beautifiedImgBase64 } = data;
               if (status === 0) {
-                that.beautifiedImgBase64 = beautifiedImgBase64;
-                that.showDialog = true;
+                that.beautifiedImgBase64 = beautifiedImgBase64;   // 展示在弹窗
                 that.beautifyNum++;
-                // base64转本地路径
+                // base64转本地路径,以供用户保存
                 that.base64ToTempUrl(beautifiedImgBase64);
-                resolve(true);
+                setTimeout(() => {
+                  that.showDialog = true;
+                  resolve(true);
+                }, 500)
               }
             } else {
               uni.showToast({
@@ -536,12 +660,65 @@ export default {
         });
       });
     },
+    beautifyImgByAge(filename) {
+      var that = this;
+      return new Promise((resolve, reject) => {
+        if (!filename) {
+          uni.showToast({
+            title: "请选择照片",
+            icon: "none",
+          });
+          return;
+        }
+        var that = this;
+        wx.request({
+          url: that.testApi
+            ? "http://127.0.0.1:3000/api/change-age"
+            : "https://www.qdovo.com/api/change-age",
+          method: "POST",
+          data: {
+            filename: filename || that.filename,
+            AgeInfos: [{ Age: +that.currentAge }],
+            RspImgType: "base64"
+          },
+          success: async function(res) {
+            let { statusCode, errMsg, data } = res;
+            if (statusCode === 200) {
+              let { status, msg, data: beautifiedImgBase64 } = data;
+              if (status === 0) {
+                that.beautifiedImgBase64 = beautifiedImgBase64;   // 展示在弹窗
+                that.beautifyNum++;
+                // base64转本地路径,以供用户保存
+                that.base64ToTempUrl(beautifiedImgBase64);
+                 setTimeout(() => {
+                  that.showDialog = true;
+                  resolve(true);
+                }, 500)
+              }
+            } else {
+              console.log('changeAge fail', errMsg)
+              reject(false);
+            }
+          },
+          fail: (err) => {
+            console.log('changeAge fail', err.errMsg)
+            reject(false);
+          },
+          complete: () => {
+            that.hasBack = true;
+          },
+        });
+      });
+    },
+    faceCartoonByTencent() {
+      this.beautifyImg(this.filename, null, this.cartoornRoute1)
+    },
     backHome(e) {
       if (!this.hasBack) return;
       uni.switchTab({
         url: "/pages/home/home",
       });
-    },
+    }
   },
 };
 </script>
@@ -563,7 +740,7 @@ export default {
   height: 100vh;
   .img-preview {
     width: 100%;
-    height: 500rpx;
+    height: 520rpx;
     position: relative;
     margin-bottom: 90rpx;
     .circle-area {
@@ -618,7 +795,7 @@ export default {
     text-align: center;
     font-size: 30rpx;
     color: #cc9966;
-    margin-top: 8px;
+    margin-top: 16rpx;
   }
   .not-found-img {
     width: 160px;
@@ -631,7 +808,7 @@ export default {
     color: #cc9966;
   }
   .back-home {
-    margin-top: 8px;
+    margin-top: 16rpx;
     &.disabled {
       opacity: 0.5;
     }
@@ -715,6 +892,39 @@ export default {
     width: 100%;
     // height: 200px;
     // background-color: pink;
+  }
+}
+.change-age-action-sheet {
+  .sheet-index--van-action-sheet {
+  }
+  .slider-row {
+    display: flex;
+    justify-content: space-between;
+    margin: 40rpx 40rpx 60rpx;
+    .label {
+      display: inline-block;
+      white-space: nowrap;
+      font-size: 14px;
+      line-height: 22px;
+      color: #666;
+    }
+    .my-slider {
+      width: calc(~"100% - 68px");
+      height: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      margin: 0 28px;
+      .custom-button {
+        width: 26px;
+        color: #fff;
+        font-size: 10px;
+        line-height: 18px;
+        text-align: center;
+        background-color: #ee0a24;
+        border-radius: 100px;
+      }
+    }
   }
 }
 </style>

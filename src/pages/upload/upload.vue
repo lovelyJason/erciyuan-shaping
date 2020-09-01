@@ -11,8 +11,13 @@ export default {
   data() {
     return {
       imgUrl: '',
-      count: 0
+      count: 0,
+      apiType: 1
     };
+  },
+  onLoad(data) {
+    const { apiType } = data
+    this.apiType = apiType
   },
   onShow() {
     // console.log(this.isDebugger)
@@ -33,6 +38,7 @@ export default {
       uni.chooseImage({
         count: 1,
         sourceType: ['album'],
+        sizeType: ['original', 'compressed'],
         success(res) {
           // tempFilePath可以作为img标签的src属性显示图片
           const tempFilePaths = res.tempFilePaths;
@@ -46,9 +52,8 @@ export default {
             that.count = 0
             that.changeDebugger(true)
           }
-          console.log(that.isDebugger)
           uni.navigateTo({
-            url: `/pages/result/result?img=${tempFilePaths[0]}&count=${that.count}`
+            url: `/pages/result/result?img=${tempFilePaths[0]}&count=${that.count}&apiType=${that.apiType}`
           });
         }
       });
@@ -58,12 +63,12 @@ export default {
       uni.chooseImage({
         count: 1,
         sourceType: ['camera'],
-        sizeType: ['compressed'],
+        sizeType: ['original', 'compressed'],
         success(res) {
           // tempFilePath可以作为img标签的src属性显示图片
           const tempFilePaths = res.tempFilePaths;
           uni.navigateTo({
-            url: `/pages/result/result?img=${tempFilePaths[0]}`
+            url: `/pages/result/result?img=${tempFilePaths[0]}&apiType=${that.apiType}`
           });
         }
       });

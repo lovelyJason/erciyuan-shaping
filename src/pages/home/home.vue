@@ -34,9 +34,17 @@
       </swiper-item>
     </swiper>
     <uni-grid :column="3" :show-border="false" @change="handleGridClick">
-      <uni-grid-item>
-        <view class="erciyuan"></view>
+      <uni-grid-item index="0">
+        <view class="shaping erciyuan"></view>
         <text class="text">变脸</text>
+      </uni-grid-item>
+      <uni-grid-item index="1">
+        <view class="shaping change-age"></view>
+        <text class="text">变年龄</text>
+      </uni-grid-item>
+      <uni-grid-item index="2">
+        <view class="shaping change-gender"></view>
+        <text class="text">变性别</text>
       </uni-grid-item>
     </uni-grid>
     <!-- <view class="grid">
@@ -67,15 +75,9 @@
 </template>
 
 <script>
-import uniGrid from "@/components/uni-grid/uni-grid.vue";
-import uniGridItem from "@/components/uni-grid-item/uni-grid-item.vue";
 import Toast from "@/wxcomponents/vant/dist/toast/toast.js";
 
 export default {
-  components: {
-    uniGrid,
-    uniGridItem,
-  },
   data() {
     return {
       background: ["color1", "color2", "color3"],
@@ -125,10 +127,22 @@ export default {
     },
     handleGridClick({ detail: { index } }) {
       if (index === 0) {
-        // this.show = true // TODO: 直接跳转页面,弹框逻辑稍后处理
         wx.navigateTo({
-          url: "/pages/upload/upload",
+          url: "/pages/upload/upload?apiType=1"
         });
+      } else if(index === 1) {
+        // uni.showToast({
+        //   icon: 'none',
+        //   title: '该功能正在开放中,请稍后'
+        // })
+        uni.navigateTo({
+          url: `/pages/upload/upload?apiType=2`
+        });
+      } else if(index === 2) {
+        uni.showToast({
+          icon: 'none',
+          title: '该功能正在开放中,敬请期待'
+        })
       }
     },
     cancel() {
@@ -214,7 +228,7 @@ export default {
 </script>
 
 <style lang="less">
-@swiper_height: 420rpx;
+@swiper_height: 460rpx;
 .page-wrapper {
   // padding: 10px 20px;
   background-color: #fff;
@@ -281,7 +295,7 @@ export default {
 .uni-grid-item__box {
   align-items: center;
 }
-.erciyuan {
+.shaping {
   width: calc(~"100% - 25px");
   height: calc(~"100% - 25px");
   background: url("https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/timg-128421521.jpeg")
@@ -289,6 +303,16 @@ export default {
   background-size: cover;
   background-color: #fff;
   border-radius: 12px;
+  @deg: -5deg;
+  transform: rotate(@deg);
+  &.change-age {
+    background: url("https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/change-age.jpg") no-repeat center center;
+    transform: rotate(-@deg);
+  }
+  &.change-gender {
+    background: url("https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/p6318591.jpg") no-repeat center center;
+    transform: rotate(@deg);
+  }
 }
 .text {
   margin-top: 6px;

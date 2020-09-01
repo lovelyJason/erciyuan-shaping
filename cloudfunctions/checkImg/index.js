@@ -5,11 +5,11 @@ cloud.init({
 });
 
 exports.main = async (event, context) => {
-  const { value } = event;
+  const { value, imgType } = event;
   try {
     const res = await cloud.openapi.security.imgSecCheck({
       media: {
-        contentType: "image/png",
+        contentType: `image/${imgType}`,
         value: Buffer.from(value),
       },
     });

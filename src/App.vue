@@ -2,7 +2,7 @@
 import Vue from 'vue'
 export default {
   onLaunch: function() {
-    console.log("App Launch");
+    // console.log("App Launch");
     // #ifdef APP-PLUS
     // App平台检测升级，服务端代码是通过uniCloud的云函数实现的，详情可参考：https://ext.dcloud.net.cn/plugin?id=2226
     if (plus.runtime.appid !== "HBuilder") {
@@ -70,10 +70,10 @@ export default {
     });
   },
   onShow: function() {
-    console.log("App Show");
+    // console.log("App Show");
   },
   onHide: function() {
-    console.log("App Hide");
+    // console.log("App Hide");
   },
   globalData: {
     test: "",

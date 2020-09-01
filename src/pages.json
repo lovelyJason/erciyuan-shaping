@@ -28,6 +28,14 @@
 			}
 		},
 		{
+			"path": "pages/change-age/change-age",
+			"style": {
+				"usingComponents": {
+					"van-slider": "/wxcomponents/vant/dist/slider/index"
+				}
+			}
+		},
+		{
 			"path": "pages/about/about",
 			"style": {
 				"navigationBarTitleText": "我的",
@@ -98,10 +106,13 @@
 			"path": "pages/result/result",
 			"style": {
 				"navigationBarTitleText": "检测王上照片",
+				"navigationBarBackgroundColor": "#9adccf",
 				"usingComponents": {
 					"van-dialog": "/wxcomponents/vant/dist/dialog/index",
 					"van-collapse": "/wxcomponents/vant/dist/collapse/index",
-					"van-collapse-item": "/wxcomponents/vant/dist/collapse-item/index"
+					"van-collapse-item": "/wxcomponents/vant/dist/collapse-item/index",
+					"van-action-sheet": "/wxcomponents/vant/dist/action-sheet/index",
+					"van-slider": "/wxcomponents/vant/dist/slider/index"
 				}
 			}
 		}
