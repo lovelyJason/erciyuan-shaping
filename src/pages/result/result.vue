@@ -68,7 +68,7 @@
             <van-collapse accordion :value="activeName" @change="onChange">
               <van-collapse-item title="什么?不满意?换个姿势?" name="1">
                 <button @click="faceCartoonByTencent" class="cu-btn round shadow line-red">
-                  正在开放中
+                  换个风格
                 </button>
               </van-collapse-item>
               <van-collapse-item title="戴上口罩试试" name="2">
@@ -80,68 +80,12 @@
                   }"
                 >
                   <radio-group class="block" @change="RadioChange">
-                    <view class="cu-form-group">
-                      <view class="title">风格1</view>
+                    <view class="cu-form-group" v-for="count in 8" :key="count">
+                      <view class="title">风格{{ count + 1 }}</view>
                       <radio
-                        :class="radio === '1' ? 'checked' : ''"
-                        :checked="radio === '1' ? true : false"
-                        value="1"
-                      ></radio>
-                    </view>
-                    <view class="cu-form-group">
-                      <view class="title">风格2</view>
-                      <radio
-                        :class="radio === '2' ? 'checked' : ''"
-                        :checked="radio === '2' ? true : false"
-                        value="2"
-                      ></radio>
-                    </view>
-                    <view class="cu-form-group">
-                      <view class="title">风格3</view>
-                      <radio
-                        :class="radio === '3' ? 'checked' : ''"
-                        :checked="radio === '3' ? true : false"
-                        value="3"
-                      ></radio>
-                    </view>
-                    <view class="cu-form-group">
-                      <view class="title">风格4</view>
-                      <radio
-                        :class="radio === '4' ? 'checked' : ''"
-                        :checked="radio === '4' ? true : false"
-                        value="4"
-                      ></radio>
-                    </view>
-                    <view class="cu-form-group">
-                      <view class="title">风格5</view>
-                      <radio
-                        :class="radio === '5' ? 'checked' : ''"
-                        :checked="radio === '5' ? true : false"
-                        value="5"
-                      ></radio>
-                    </view>
-                    <view class="cu-form-group">
-                      <view class="title">风格6</view>
-                      <radio
-                        :class="radio === '6' ? 'checked' : ''"
-                        :checked="radio === '6' ? true : false"
-                        value="6"
-                      ></radio>
-                    </view>
-                    <view class="cu-form-group">
-                      <view class="title">风格7</view>
-                      <radio
-                        :class="radio === '7' ? 'checked' : ''"
-                        :checked="radio === '7' ? true : false"
-                        value="7"
-                      ></radio>
-                    </view>
-                    <view class="cu-form-group">
-                      <view class="title">风格8</view>
-                      <radio
-                        :class="radio === '8' ? 'checked' : ''"
-                        :checked="radio === '8' ? true : false"
-                        value="8"
+                        :class="radio == count + 1 ? 'checked' : ''"
+                        :checked="radio == count + 1 ? true : false"
+                        :value="count + 1"
                       ></radio>
                     </view>
                   </radio-group>
@@ -207,7 +151,7 @@ export default {
         "https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/not_found.png",
       searchingImg:
         "https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/searching.png",
-      filename: "", // 文件名,对应于服务器目录中上传后的文件名,
+      filename: "", // 文件名,对应于服务器目录中上传后的文件名
       beautifiedImgBase64: "",
       beautifiedImgTempUrl: "",
       modalName: null,
@@ -215,7 +159,7 @@ export default {
       drawList: [{ title: "什么?不满意?换个姿势?" }, { title: "戴上口罩" }],
       radio: "1",
       activeName: "",
-      testApi: false, 
+      testApi: false,
       beautifyNum: 0,
       checkImgFlag: false,
       uploadFlag: false,
@@ -226,8 +170,8 @@ export default {
       ifChangeAge: false,
       apiType: 1,
       closeActionSheet: false,
-      cartoornRoute2: 'beautify',
-      cartoornRoute1: 'face-cartoon'    // 默认使用腾讯
+      cartoornRoute1: 'beautify',
+      cartoornRoute2: 'face-cartoon'    // 默认使用腾讯
     };
   },
   async onLoad(data) {
@@ -334,7 +278,7 @@ export default {
         mask: true,
       });
       let mask_id = parseInt(this.radio); // str ===> +
-      await this.beautifyImg(this.filename, mask_id);
+      await this.beautifyImg(this.filename, mask_id, this.cartoornRoute1);
       uni.hideLoading();
     },
     clickDot() {
@@ -517,8 +461,6 @@ export default {
                 let filename = imgUrl.split("/").slice(-1)[0];
                 that.filename = filename;
                 resolve(filename);
-                // 美化图片
-                // that.beautifyImg(filename);
                 // that.urlTobase64(imgUrl).then((imgBase64Res) => {
                 //   // 转码, 已在服务器根据filename匹配文件转base64,此处无需处理
                 //   // that.imgBase64 = imgBase64Res
@@ -556,9 +498,6 @@ export default {
       wx.saveImageToPhotosAlbum({
         filePath: filePath,
         success: function(res) {
-          // uni.showToast({
-          //   title: "保存成功",
-          // });
           that.$refs.dialog.stopLoading();
           that.showDialog = false;
         },
@@ -604,6 +543,13 @@ export default {
         });
       });
     },
+    /** 
+     * 动漫化人像,接受腾讯,百度等ai接口
+     * @param {string} filename 必传,此字段为上传接口返回的md5摘要.mimetype
+     * @param {number} mask_id
+     * @param {string} route api接口路由地址,不带'/',为了区分是哪一家的ai算法
+     * @return {promise} 将接口返回的base64转化为tempUrl并打开弹窗
+    */
     beautifyImg(filename, mask_id, route=this.cartoornRoute2) {
       // --- 分界线
       var that = this;
@@ -638,21 +584,16 @@ export default {
                   that.showDialog = true;
                   resolve(true);
                 }, 500)
+              } else {
+                reject({errMsg: msg});
               }
             } else {
-              uni.showToast({
-                title: errMsg,
-                icon: "none",
-              });
-              reject(false);
+              reject({errMsg});
             }
           },
           fail: (err) => {
-            uni.showToast({
-              title: err.errMsg,
-              icon: "none",
-            });
-            reject(false);
+            console.log(err)
+            reject(err);
           },
           complete: () => {
             that.hasBack = true;
@@ -694,15 +635,15 @@ export default {
                   that.showDialog = true;
                   resolve(true);
                 }, 500)
+              } else {
+                reject({errMsg: msg});
               }
             } else {
-              console.log('changeAge fail', errMsg)
-              reject(false);
+              reject({errMsg});
             }
           },
           fail: (err) => {
-            console.log('changeAge fail', err.errMsg)
-            reject(false);
+            reject(err);
           },
           complete: () => {
             that.hasBack = true;
@@ -711,6 +652,18 @@ export default {
       });
     },
     faceCartoonByTencent() {
+      if (this.beautifyNum >= 3) {
+        return uni.showToast({
+          title: "您今天的次数已超上限",
+          icon: "none",
+        });
+      }
+      if (this.isIllegal) {
+        return uni.showToast({
+          title: "您的图片含有违规内容,请停止操作",
+          icon: "none",
+        });
+      }
       this.beautifyImg(this.filename, null, this.cartoornRoute1)
     },
     backHome(e) {
