@@ -67,7 +67,10 @@
           <view class="cu-list menu text-left">
             <van-collapse accordion :value="activeName" @change="onChange">
               <van-collapse-item title="什么?不满意?换个姿势?" name="1">
-                <button @click="faceCartoonByTencent" class="cu-btn round shadow line-red">
+                <button
+                  @click="changeStyle"
+                  class="cu-btn round shadow line-red"
+                >
                   换个风格
                 </button>
               </van-collapse-item>
@@ -118,7 +121,14 @@
         top: -1000 + 'px',
       }"
     ></canvas>
-    <van-action-sheet v-if="apiType == 2" :show="showActionSheet" description="请选择年龄" class="change-age-action-sheet" cancel-text="确认" @cancel="confirmAge">
+    <van-action-sheet
+      v-if="apiType == 2"
+      :show="showActionSheet"
+      description="请选择年龄"
+      class="change-age-action-sheet"
+      cancel-text="确认"
+      @cancel="confirmAge"
+    >
       <view class="slider-row">
         <text class="label">变年轻</text>
         <van-slider
@@ -170,16 +180,17 @@ export default {
       ifChangeAge: false,
       apiType: 1,
       closeActionSheet: false,
-      cartoornRoute1: 'beautify',
-      cartoornRoute2: 'face-cartoon'    // 默认使用腾讯
+      cartoornRoute1: "beautify",
+      cartoornRoute2: "face-cartoon", // 默认使用腾讯
     };
   },
   async onLoad(data) {
     const that = this;
-    const { img, apiType } = data; // tempUrl
+    const { img, apiType, count } = data; // tempUrl
     const imgType = img.split(".").slice(-1)[0];
     that.loadedImgUrl = img;
-    that.apiType = apiType
+    that.apiType = apiType;
+    that.count = count;
     // 骚操作  加 .$vm，小程序里面beforePage.changeData()可以使用，但是app上需要用beforePage.$vm.changeData()；
     var pages = getCurrentPages(); //当前页面栈
     // changeData()为父页面的方法，也就是上一页的方法。
@@ -194,37 +205,37 @@ export default {
     2. canvas重绘
     3. 安装第三方图片压缩包
     */
-    if(apiType == 1) {
-      this.changePicFromTempUrl(img, 1)
+    if (apiType == 1) {
+      this.changePicFromTempUrl(img, 1);
     } else {
-      that.hasBack = true
+      that.hasBack = true;
     }
   },
   computed: {
     showActionSheet: function() {
-      if(this.closeActionSheet) {
-        return false
+      if (this.closeActionSheet) {
+        return false;
       } else {
-        return this.apiType == 2
+        return this.apiType == 2;
       }
-    }
+    },
   },
   methods: {
     confirmAge() {
-      this.closeActionSheet = true
-      this.changePicFromTempUrl(this.loadedImgUrl, 2)
+      this.closeActionSheet = true;
+      this.changePicFromTempUrl(this.loadedImgUrl, 2);
     },
     changeAge(e) {
-      this.currentAge = e.detail !== undefined ? e.detail : e.detail.value
+      this.currentAge = e.detail !== undefined ? e.detail : e.detail.value;
     },
     /** 得到tempUrl,经过压缩,检测,上传,美化的封装
      * @img 上传或拍照后本地临时路径
-     * 
+     *
      */
     async changePicFromTempUrl(img, apiType) {
-      const that = this
+      const that = this;
       const imgType = img.split(".").slice(-1)[0];
-      that.hasBack = false
+      that.hasBack = false;
       try {
         let compressedImage = await that.compressImage(img);
         console.log("压缩后图", compressedImage);
@@ -232,23 +243,24 @@ export default {
         let isSafe = await that.checkImgSec(compressedImage, imgType);
         if (isSafe) {
           let filename = await that.upLoadImgToOss(img);
-          if(apiType == 1) {
-            await that.beautifyImg(filename)
-            that.hasBack = true
+          if (apiType == 1) {
+            await that.beautifyImg(filename);
+            that.hasBack = true;
           } else {
-            await that.beautifyImgByAge(filename)
-            that.hasBack = true
+            await that.beautifyImgByAge(filename);
+            that.hasBack = true;
           }
         } else {
           that.loadedImgUrl = `https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/illegal.png`;
-          that.hasBack = true
+          that.hasBack = true;
         }
       } catch (error) {
         console.log(error);
-        that.hasBack = true
+        that.hasBack = true;
         uni.showToast({
           icon: "none",
           title: error.errMsg || "系统错误",
+          duration: 3000
         });
       }
     },
@@ -519,8 +531,7 @@ export default {
       return new Promise((resolve, reject) => {
         let fm = wx.getFileSystemManager();
         let startIndex = base64.indexOf("base64,") + 7;
-        let filePath =
-          wx.env.USER_DATA_PATH + `/${that.filename || "pic.png"}`;
+        let filePath = wx.env.USER_DATA_PATH + `/${that.filename || "pic.png"}`;
         fm.writeFile({
           filePath: filePath,
           encoding: "base64",
@@ -543,14 +554,36 @@ export default {
         });
       });
     },
-    /** 
+    /**
+     * 检查图片是否已经上传过
+     * @param {string} filename 必传
+     */
+    checkPicExit(filename) {
+      return new Promise((resovle, reject) => {
+        wx.request({
+          url: this.testApi
+            ? `http://127.0.0.1:3000/api/search-file?filename=${filename}`
+            : `https://www.qdovo.com/api/search-file?filename=${filename}`,
+          method: 'GET',
+          success: (res) => {
+            const { data: { exit } } = res
+            resolve(exit)
+          },
+          fail: (err) => {
+            reject(err)
+          }
+        });
+
+      })
+    },
+    /**
      * 动漫化人像,接受腾讯,百度等ai接口
      * @param {string} filename 必传,此字段为上传接口返回的md5摘要.mimetype
      * @param {number} mask_id
      * @param {string} route api接口路由地址,不带'/',为了区分是哪一家的ai算法
      * @return {promise} 将接口返回的base64转化为tempUrl并打开弹窗
-    */
-    beautifyImg(filename, mask_id, route=this.cartoornRoute2) {
+     */
+    beautifyImg(filename, mask_id, route = this.cartoornRoute2) {
       // --- 分界线
       var that = this;
       return new Promise((resolve, reject) => {
@@ -576,23 +609,21 @@ export default {
             if (statusCode === 200) {
               let { status, msg, data: beautifiedImgBase64 } = data;
               if (status === 0) {
-                that.beautifiedImgBase64 = beautifiedImgBase64;   // 展示在弹窗
+                that.beautifiedImgBase64 = beautifiedImgBase64; // 展示在弹窗
                 that.beautifyNum++;
                 // base64转本地路径,以供用户保存
                 that.base64ToTempUrl(beautifiedImgBase64);
-                setTimeout(() => {
-                  that.showDialog = true;
-                  resolve(true);
-                }, 500)
+                that.showDialog = true;
+                resolve(true);
               } else {
-                reject({errMsg: msg});
+                reject({ errMsg: msg });
               }
             } else {
-              reject({errMsg});
+              reject({ errMsg });
             }
           },
           fail: (err) => {
-            console.log(err)
+            console.log(err);
             reject(err);
           },
           complete: () => {
@@ -620,26 +651,24 @@ export default {
           data: {
             filename: filename || that.filename,
             AgeInfos: [{ Age: +that.currentAge }],
-            RspImgType: "base64"
+            RspImgType: "base64",
           },
           success: async function(res) {
             let { statusCode, errMsg, data } = res;
             if (statusCode === 200) {
               let { status, msg, data: beautifiedImgBase64 } = data;
               if (status === 0) {
-                that.beautifiedImgBase64 = beautifiedImgBase64;   // 展示在弹窗
+                that.beautifiedImgBase64 = beautifiedImgBase64; // 展示在弹窗
                 that.beautifyNum++;
                 // base64转本地路径,以供用户保存
                 that.base64ToTempUrl(beautifiedImgBase64);
-                 setTimeout(() => {
-                  that.showDialog = true;
-                  resolve(true);
-                }, 500)
+                that.showDialog = true;
+                resolve(true);
               } else {
-                reject({errMsg: msg});
+                reject({ errMsg: msg });
               }
             } else {
-              reject({errMsg});
+              reject({ errMsg });
             }
           },
           fail: (err) => {
@@ -651,10 +680,10 @@ export default {
         });
       });
     },
-    faceCartoonByTencent() {
+    async changeStyle() {
       if (this.beautifyNum >= 3) {
         return uni.showToast({
-          title: "您今天的次数已超上限",
+          title: "您今天的次数已超上限,为节约成本,联系管理员解除限制",
           icon: "none",
         });
       }
@@ -664,14 +693,19 @@ export default {
           icon: "none",
         });
       }
-      this.beautifyImg(this.filename, null, this.cartoornRoute1)
+      uni.showLoading({
+        title: '拼命加载中',
+        mask: true
+      })
+      await this.beautifyImg(this.filename, null, this.cartoornRoute1);
+      uni.hideLoading()
     },
     backHome(e) {
       if (!this.hasBack) return;
       uni.switchTab({
         url: "/pages/home/home",
       });
-    }
+    },
   },
 };
 </script>
