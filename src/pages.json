@@ -115,6 +115,24 @@
 					"van-slider": "/wxcomponents/vant/dist/slider/index"
 				}
 			}
+		},
+		{
+			"path": "pages/beauty-makeup/beauty-makeup",
+			"style": {
+				"navigationBarTitleText": "人脸美妆",
+				"navigationBarBackgroundColor": "#9adccf",
+				"usingComponents": {
+					"van-dropdown-menu": "/wxcomponents/vant/dist/dropdown-menu/index",
+  				"van-dropdown-item": "/wxcomponents/vant/dist/dropdown-item/index"
+				}
+			}
+		},
+		{
+			"path": "pages/makeup-result/makeup-result",
+			"style": {
+				"navigationBarTitleText": "人脸美妆",
+				"navigationBarBackgroundColor": "#9adccf"
+			}
 		}
 	],
 	"tabBar": {

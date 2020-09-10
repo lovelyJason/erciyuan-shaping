@@ -1,13 +1,21 @@
 <template>
   <view class="page-wrapper">
-    <swiper
-      class="swiper"
+    <!-- <swiper
+      class="custom-swiper"
       circular
       :indicator-dots="indicatorDots"
       :autoplay="autoplay"
       :interval="interval"
       :duration="duration"
     >
+      <swiper-item>
+        <view class="swiper-item">
+          <image
+            mode="aspectFill"
+            src="https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/xitong.jpeg"
+          ></image>
+        </view>
+      </swiper-item>
       <swiper-item>
         <view class="swiper-item">
           <image
@@ -32,9 +40,19 @@
           ></image>
         </view>
       </swiper-item>
-    </swiper>
+    </swiper> -->
+    <swiper class="card-swiper" :class="dotStyle?'square-dot':'round-dot'" :indicator-dots="true" :circular="true"
+		 :autoplay="true" interval="5000" duration="500" @change="cardSwiper" indicator-color="#8799a3"
+		 indicator-active-color="#0081ff">
+			<swiper-item v-for="(item,index) in swiperList" :key="index" :class="cardCur==index?'cur':''">
+				<view class="swiper-item">
+					<image :src="item.url" mode="aspectFill" v-if="item.type=='image'"></image>
+					<video :src="item.url" autoplay loop muted :show-play-btn="false" :controls="false" objectFit="cover" v-if="item.type=='video'"></video>
+				</view>
+			</swiper-item>
+		</swiper>
     <uni-grid :column="3" :show-border="false" @change="handleGridClick">
-      <uni-grid-item index="0">
+      <uni-grid-item index="0" class="first-grid-item">
         <view class="shaping erciyuan"></view>
         <text class="text">变脸</text>
       </uni-grid-item>
@@ -45,6 +63,10 @@
       <uni-grid-item index="2">
         <view class="shaping change-gender"></view>
         <text class="text">变性别</text>
+      </uni-grid-item>
+      <uni-grid-item index="3">
+        <view class="shaping beauty-makeup"></view>
+        <text class="text">人脸美妆</text>
       </uni-grid-item>
     </uni-grid>
     <!-- <view class="grid">
@@ -90,6 +112,25 @@ export default {
       filename: "",
       show: false,
       asyncClose: true,
+      dotStyle: false,
+      swiperList: [{
+					id: 0,
+					type: 'image',
+					url: 'https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/xitong.jpeg'
+				}, {
+					id: 1,
+					type: 'image',
+					url: 'https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/下载.png',
+				}, {
+					id: 2,
+					type: 'image',
+					url: 'https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/下载.jpeg'
+				}, {
+					id: 3,
+					type: 'image',
+					url: 'https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/556945514.png'
+				}],
+        cardCur: 0
     };
   },
   onLoad() {
@@ -102,6 +143,12 @@ export default {
     // this.testCloudFunction();
   },
   methods: {
+    DotStyle(e) {
+			this.dotStyle = e.detail.value
+    },
+    cardSwiper(e) {
+			this.cardCur = e.detail.current
+		},
     testCloudFunction() {
       var content = '法轮功'
       wx.cloud.init()
@@ -128,7 +175,7 @@ export default {
     handleGridClick({ detail: { index } }) {
       if (index === 0) {
         wx.navigateTo({
-          url: "/pages/upload/upload?apiType=1"
+          url: '/pages/upload/upload?apiType=1'
         });
       } else if(index === 1) {
         // uni.showToast({
@@ -142,6 +189,10 @@ export default {
         uni.showToast({
           icon: 'none',
           title: '该功能正在开放中,敬请期待'
+        })
+      } else if(index === 3) {
+        wx.navigateTo({
+          url: '/pages/beauty-makeup/beauty-makeup'
         })
       }
     },
@@ -228,28 +279,33 @@ export default {
 </script>
 
 <style lang="less">
-@swiper_height: 460rpx;
+@swiper_height: 500rpx !important;
 .page-wrapper {
   // padding: 10px 20px;
+  background: url("https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/beauty-makeup-bg.png") no-repeat center;
+  background-size: cover;
   background-color: #fff;
 }
-.swiper {
+.custom-swiper {
   height: @swiper_height;
-}
-.swiper-item {
-  display: block;
-  height: @swiper_height;
-  line-height: @swiper_height;
-  text-align: center;
-  image {
-    width: 100%;
-    height: 100%;
-    // border-radius: 20px;
+  .swiper-item {
+    display: block;
+    height: @swiper_height;
+    line-height: @swiper_height;
+    text-align: center;
+    image {
+      width: 100%;
+      height: 100%;
+      border-radius: 20px;
+    }
   }
 }
 .swiper-list {
   margin-top: 40rpx;
   margin-bottom: 0;
+}
+.card-swiper {
+  height: @swiper_height;
 }
 .uni-common-mt {
   margin-top: 60rpx;
@@ -295,6 +351,9 @@ export default {
 .uni-grid-item__box {
   align-items: center;
 }
+.first-grid-item {
+  margin-bottom: 40rpx;
+}
 .shaping {
   width: calc(~"100% - 25px");
   height: calc(~"100% - 25px");
@@ -305,6 +364,9 @@ export default {
   border-radius: 12px;
   @deg: -5deg;
   transform: rotate(@deg);
+  &.erciyuan {
+    transform: rotate(-@deg);
+  }
   &.change-age {
     background: url("https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/change-age.jpg") no-repeat center center;
     transform: rotate(-@deg);
@@ -312,6 +374,9 @@ export default {
   &.change-gender {
     background: url("https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/p6318591.jpg") no-repeat center center;
     transform: rotate(@deg);
+  }
+  &.beauty-makeup {
+    background: url("https://cdn.jsdelivr.net/gh/lovelyJason/cdn-gallery/img/meizhuang.png") no-repeat center center;
   }
 }
 .text {
